@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Официальный сайт GappleGame-GG</title>
+    <style>
+        /* Физика прыжков шарика GD */
+        @keyframes gdBounce {
+            0% { left: -50px; bottom: 10%; transform: scale(1); }
+            10% { bottom: 25%; transform: scale(1); animation-timing-function: ease-out; }
+            18% { bottom: 30%; transform: scale(1); animation-timing-function: ease-in; }
+            26% { bottom: 10%; transform: scale(1.2, 0.7); }
+            30% { bottom: 10%; transform: scale(1); }
+            42% { bottom: 32%; transform: scale(1); animation-timing-function: ease-out; }
+            50% { bottom: 38%; transform: scale(1); animation-timing-function: ease-in; }
+            58% { bottom: 10%; transform: scale(1.2, 0.7); }
+            62% { bottom: 10%; transform: scale(1); }
+            72% { bottom: 22%; transform: scale(1); animation-timing-function: ease-out; }
+            80% { bottom: 26%; transform: scale(1); animation-timing-function: ease-in; }
+            88% { bottom: 10%; transform: scale(1); }
+            100% { left: 110%; bottom: 10%; transform: scale(1); }
+        }
+
+        /* Постоянный пульс вокруг кнопки */
+        @keyframes purplePulse {
+            0% { box-shadow: 0 0 0 0 rgba(162, 155, 254, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(162, 155, 254, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(162, 155, 254, 0); }
+        }
+
+        /* Кнопка с постоянным пульсом */
+        .pulse-btn {
+            width: 100%; 
+            padding: 14px; 
+            background: #00b894; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px;
+            font-weight: bold; 
+            cursor: pointer;
+            transition: 0.3s;
+            animation: purplePulse 2s infinite;
+        }
+        
+        .pulse-btn:hover {
+            background: #00a884;
+            transform: scale(1.02);
+        }
+
+        /* Вторая кнопка (для сайта) */
+        .site-btn {
+            background: #74b9ff;
+            animation: purplePulse 2s infinite;
+        }
+        .site-btn:hover {
+            background: #0984e3;
+        }
+
+        /* Анимация вылетающего текста "промазал!" */
+        .miss-text {
+            position: fixed;
+            color: #a29bfe;
+            font-weight: bold;
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 10000;
+            text-shadow: 0 0 8px rgba(162, 155, 254, 0.6);
+            animation: flyAndFade 0.8s ease-out forwards;
+        }
+
+        @keyframes flyAndFade {
+            0% { transform: translate(-50%, -50%) translateY(0) scale(0.8); opacity: 1; }
+            100% { transform: translate(-50%, -50%) translateY(-40px) scale(1.1); opacity: 0; }
+        }
+    </style>
+</head>
+<body style="background: #0d0e12; color: #ffffff; font-family: sans-serif; margin: 0; padding: 40px 20px; text-align: center; position: relative; overflow-x: hidden; min-height: 90vh;">
+
+    <!-- Физичный шарик (z-index: 9999) -->
+    <div style="position: fixed; width: 25px; height: 25px; background: #00b894; border-radius: 50%; box-shadow: 0 0 15px #00b894, 0 0 30px #00b894; left: -50px; bottom: 10%; z-index: 9999; pointer-events: none; animation: gdBounce 5s linear infinite; animation-delay: 1s;"></div>
+
+    <!-- Главная официальная шапка сайта -->
+    <h1 style="font-size: 26px; color: #00b894; margin-bottom: 5px; font-weight: 900;">
+        Официальный сайт: GappleGame-GG
+    </h1>
+    
+    <!-- Твоя студия -->
+    <p style="color: #ff7675; font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 40px;">
+        Разработано: GappleSuperStudio-GSS
+    </p>
+
+    <!-- Контейнер для карточек -->
+    <div style="display: flex; flex-direction: column; gap: 25px; max-width: 400px; margin: 0 auto;">
+        
+        <!-- Карточка 1: Ссылка на пиратку Майна -->
+        <div style="background: #161822; padding: 20px; border-radius: 12px; border: 1px solid #282c3d; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+            <h3 style="margin: 0 0 10px 0; color: #74b9ff; font-size: 20px;">🎮 Пиратка Minecraft</h3>
+            <p style="margin: 0 0 20px 0; color: #b2bec3; font-size: 14px;">Скачивай лаунчер бесплатно и залетай играть на любые пиратские сервера прямо сейчас.</p>
+            
+            <!-- Ссылка ведет на официальный сайт TLauncher -->
+            <a href="https://tlauncher.org" target="_blank" style="text-decoration: none; position: relative; z-index: 5;">
+                <button class="pulse-btn">
+                    Скачать Майнкрафт
+                </button>
+            </a>
+        </div>
+
+        <!-- Карточка 2: Анонс твоего сайта -->
+        <div style="background: #161822; padding: 20px; border-radius: 12px; border: 1px solid #282c3d; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+            <h3 style="margin: 0 0 10px 0; color: #a29bfe; font-size: 20px;">🌐 Полноценный сайт</h3>
+            <p style="margin: 0 0 20px 0; color: #b2bec3; font-size: 14px;">Скоро здесь развернется наш собственный масштабный игровой хаб с личным кабинетом.</p>
+            
+            <button class="pulse-btn site-btn" onclick="alert('Проект «Наш Сайт» сейчас активно кодится в GappleSuperStudio! Скоро открытие!')">
+                Открыть Наш Сайт
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Футер сайта -->
+    <p style="margin-top: 50px; color: #4b5162; font-size: 12px;">© 2026 GappleSuperStudio-GSS. Все права reserved.</p>
+
+    <!-- Скрипт кликов и проверки промахов -->
+    <script>
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.pulse-btn')) {
+                return;
+            }
+
+            let miss = document.createElement('div');
+            miss.classList.add('miss-text');
+            miss.innerText = 'промазал!';
+            
+            miss.style.left = e.clientX + 'px';
+            miss.style.top = e.clientY + 'px';
+            
+            document.body.appendChild(miss);
+
+            miss.addEventListener('animationend', () => {
+                miss.remove();
+            });
+        });
+    </script>
+
+</body>
+</html>
+  
