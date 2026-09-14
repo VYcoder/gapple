@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg: #0d1117;
-            --card: #161b22;
+            --card: rgba(22, 27, 34, 0.85); /* Сделал окна чуть прозрачными для фона */
             --field: #090d13;
             --green: #00ff66;
             --cyan: #00f0ff;
@@ -28,7 +28,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
+            overflow: hidden; /* Убираем лишние скроллы из-за фона */
+            position: relative;
+        }
+
+        /* ===== ХОЛСТ ДЛЯ АНИМИРОВАННОГО ФОНА ===== */
+        #bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
         }
 
         /* ===== ЗАГРУЗОЧНЫЙ ЭКРАН ===== */
@@ -41,7 +53,7 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
         #loader.hidden {
             opacity: 0;
@@ -75,12 +87,10 @@
             width: 0%;
             background: linear-gradient(90deg, var(--green), var(--cyan));
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.7);
-            animation: loadFill 2s ease forwards;
+            animation: loadFill 1.8s ease forwards;
         }
         @keyframes loadFill {
             0%   { width: 0%; }
-            30%  { width: 35%; }
-            60%  { width: 60%; }
             100% { width: 100%; }
         }
         .loader-text {
@@ -113,6 +123,9 @@
             max-width: 500px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             display: none;
+            position: relative;
+            z-index: 5; /* Чтобы окна были выше анимированного фона */
+            backdrop-filter: blur(4px); /* Эффект размытия под окнами */
         }
         .window.visible {
             display: block;
@@ -148,7 +161,7 @@
             margin-bottom: 20px;
         }
         textarea {
-            height: 150px;
+            height: 140px;
             resize: none;
         }
         .btn {
@@ -225,6 +238,10 @@
     </style>
 </head>
 <body>
+
+    <!-- Холст для анимированного заднего плана -->
+    <canvas id="bg-canvas"></canvas>
+
     <!-- Загрузочный экран -->
     <div id="loader">
         <div class="loader-logo">VYC</div>
@@ -232,128 +249,286 @@
         <div class="loader-text" id="loader-text">Инициализация<span class="loader-cursor"></span></div>
     </div>
 
-    <!-- Шаги интерфейса и окна (Шаг 1, Шаг 2, Главное меню, Библиотека слов и Песочница Li-Py) -->
-    <!-- Полную HTML-разметку всех окон вы можете найти в исходных материалах. -->
-    <div id="win1" class="window visible">...</div>
-    <div id="win2" class="window">...</div>
-    <div id="win3" class="window">...</div>
-    <div id="win-library" class="window">...</div>
-    <div id="win-sandbox" class="window
-    <script>
-        let keywordsLibrary = {}; 
-        let currentSymbol = '';
-        let useAllRules = false;
+    <!-- Шаг 1 -->
+    <div id="win1" class="window visible">
+        <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
+        <h2>Шаг 1: Какой символ или ключевое слово вы хотите перепрограммировать?</h2>
+        <input type="text" id="user-symbol" class="input-text" value="withdraw" placeholder="Например: clue, withdraw, text">
+        <button class="btn" onclick="setupStep2()">Далее</button>
+    </div>
 
-        // Эмуляция загрузки лоадера
-        window.addEventListener('DOMContentLoaded', () => {
-            const loaderTexts = ["Инициализация...", "Загрузка модулей Li-Py...", "Готово!"];
-            let step = 0;
-            const textEl = document.getElementById('loader-text');
-            const interval = setInterval(() => {
-                if(step < loaderTexts.length) {
-                    textEl.innerHTML = loaderTexts[step] + '<span class="loader-cursor"></span>';
-                    step++;
-                } else {
-                    clearInterval(interval);
-                    document.getElementById('loader').classList.add('hidden');
-                }
-            }, 600);
-        });
-
-        // Переключение окон
-        function nextWindow(currentId, nextId) {
-            const getWin = (id) => document.getElementById(id === 'library' ? 'win-library' : id === 'sandbox' ? 'win-sandbox' : 'win' + id);
-            const curWin = getWin(currentId);
-            const nextWin = getWin(nextId);
-            if(curWin) curWin.classList.remove('visible');
-            if(nextWin) nextWin.classList.add('visible');
+    <!-- Шаг 2 -->
+    <div id="win2" class="window">
+        <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
+        <h2>Шаг 2: Какое значение выдать "<span id="dynamic-symbol-label"></span>"? Задайте выражение:</h2>
+        <input type="text" id="user-mapping" class="input-text" placeholder="Например: alert, console.log">
+        <button class="btn btn-cyan" onclick="saveWord()">Сохранить слово</button>
+        <button class="btn btn-sec" onclick="nextWindow(2, 1)">Назад</button>
+    </div>
+    <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYC - Visual Your Code</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: rgba(22, 27, 34, 0.85); /* Сделал окна чуть прозрачными для фона */
+            --field: #090d13;
+            --green: #00ff66;
+            --cyan: #00f0ff;
+            --text: #c9d1d9;
+            --border: #30363d;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Убираем лишние скроллы из-за фона */
+            position: relative;
         }
 
-        // Шаг 1 -> Шаг 2
-        function setupStep2() {
-            currentSymbol = document.getElementById('user-symbol').value.trim();
-            if (!currentSymbol) return alert('Введите слово или символ!');
-            document.getElementById('dynamic-symbol-label').innerText = currentSymbol;
-            nextWindow(1, 2);
+        /* ===== ХОЛСТ ДЛЯ АНИМИРОВАННОГО ФОНА ===== */
+        #bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
         }
 
-        // Сохранение (Шаг 2 -> Меню)
-        function saveWord() {
-            const mapping = document.getElementById('user-mapping').value.trim();
-            if (!mapping) return alert('Задайте выражение для замены!');
-            keywordsLibrary[currentSymbol] = mapping;
-            document.getElementById('user-mapping').value = '';
-            nextWindow(2, 3);
+        /* ===== ЗАГРУЗОЧНЫЙ ЭКРАН ===== */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #0d1117;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .loader-logo {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--cyan);
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+            animation: logoPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes logoPulse {
+            0%, 100% { text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); transform: scale(1); }
+            50%      { text-shadow: 0 0 30px rgba(0, 240, 255, 1), 0 0 50px rgba(0, 255, 102, 0.5); transform: scale(1.05); }
+        }
+        .loader-bar {
+            width: 260px;
+            height: 6px;
+            background: #090d13;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .loader-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--green), var(--cyan));
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.7);
+            animation: loadFill 1.8s ease forwards;
+        }
+        @keyframes loadFill {
+            0%   { width: 0%; }
+            100% { width: 100%; }
+        }
+        .loader-text {
+            font-size: 0.9rem;
+            color: var(--green);
+            letter-spacing: 1px;
+            min-height: 1.2em;
+            text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+        }
+        .loader-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1em;
+            background: var(--green);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.7s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
         }
 
-        // Открытие песочницы
-        function openSandbox(allRules) {
-            useAllRules = allRules;
-            const area = document.getElementById('sandbox-code');
-            document.getElementById('console-output').innerText = "Ожидание запуска...";
-
-            if (!allRules) {
-                area.value = `${currentSymbol}("Привет, VYC!");`;
-            } else {
-                area.value = `// Все сохраненные правила:\n`;
-                for(let key in keywordsLibrary) {
-                    area.value += `${key}("Тест: ${keywordsLibrary[key]}");\n`;
-                }
-            }
-            nextWindow(3, 'sandbox');
+        /* ===== ОКНА ===== */
+        .window {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            display: none;
+            position: relative;
+            z-index: 5; /* Чтобы окна были выше анимированного фона */
+            backdrop-filter: blur(4px); /* Эффект размытия под окнами */
         }
-
-        // Парсер и запуск кода
-        function runSandboxCode() {
-            let code = document.getElementById('sandbox-code').value;
-            const output = document.getElementById('console-output');
-            
-            try {
-                if (!useAllRules) {
-                    if(currentSymbol && keywordsLibrary[currentSymbol]) {
-                        code = code.replace(new RegExp(currentSymbol, 'g'), keywordsLibrary[currentSymbol]);
-                    }
-                } else {
-                    for (let key in keywordsLibrary) {
-                        code = code.replace(new RegExp(key, 'g'), keywordsLibrary[key]);
-                    }
-                }
-
-                let logBuffer = [];
-                const originalLog = console.log;
-                console.log = (...args) => logBuffer.push(args.join(' '));
-
-                eval(code); // Безопасное выполнение в контексте песочницы
-
-                console.log = originalLog;
-                output.innerText = logBuffer.length > 0 ? "[Вывод Li-Py]:\n" + logBuffer.join('\n') : "[Выполнено без вывода].\nКод: " + code;
-            } catch (err) {
-                output.innerText = "[Ошибка Li-Py]:\n" + err.message;
-            }
+        .window.visible {
+            display: block;
+            animation: windowIn 0.4s ease;
         }
-
-        // Открытие библиотеки
-        function openLibrary() {
-            const container = document.getElementById('library-list-container');
-            container.innerHTML = '';
-
-            if (Object.keys(keywordsLibrary).length === 0) {
-                container.innerHTML = '<div style="color:#666;text-align:center;padding:10px;">Библиотека пуста</div>';
-            } else {
-                for (let key in keywordsLibrary) {
-                    const item = document.createElement('div');
-                    item.className = 'library-item';
-                    item.innerHTML = `<span><strong>${key}</strong> → ${keywordsLibrary[key]}</span><button class="del-btn" onclick="deleteWord('${key}')">Удалить</button>`;
-                    container.appendChild(item);
-                }
-            }
-            nextWindow(3, 'library');
+        @keyframes windowIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-
-        function deleteWord(key) {
-            delete keywordsLibrary[key];
-            openLibrary();
+        h1.brand-title {
+            color: var(--cyan);
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
         }
-    </script>
-</body>
-                </html>
+        h2 {
+            color: var(--green);
+            font-size: 1.15rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .input-text, textarea {
+            width: 100%;
+            background: var(--field);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 14px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        textarea {
+            height: 140px;
+            resize: none;
+        }
+        .btn {
+            width: 100%;
+            background: var(--green);
+            color: #000;
+            border: none;
+            padding: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+            background: #00e65c;
+        }
+        .btn-cyan {
+            background: var(--cyan);
+        }
+        .btn-cyan:hover {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+            background: #00d8e6;
+        }
+        .btn-sec {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid var(--border);
+        }
+        .btn-sec:hover {
+            background: #30363d;
+        }
+        .console-box {
+            background: #000;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 6px;
+            min-height: 60px;
+            white-space: pre-wrap;
+            color: var(--cyan);
+            font-size: 0.95rem;
+            margin-top: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+        .library-list {
+            background: var(--field);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .library-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .del-btn {
+            background: #ff4444;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Холст для анимированного заднего плана -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Загрузочный экран -->
+    <div id="loader">
+        <div class="loader-logo">VYC</div>
+        <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+        <div class="loader-text" id="loader-text">Инициализация<span class="loader-cursor"></span></div>
+    </div>
+
+    <!-- Шаг 1 -->
+    <div id="win1" class="window visible">
+        <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
+        <h2>Шаг 1: Какой символ или ключевое слово вы хотите перепрограммировать?</h2>
+        <input type="text" id="user-symbol" class="input-text" value="withdraw" placeholder="Например: clue, withdraw, text">
+        <button class="btn" onclick="setupStep2()">Далее</button>
+    </div>
+
+    <!-- Шаг 2 -->
+    <div id="win2" class="window">
+        <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
+        <h2>Шаг 2: Какое значение выдать "<span id="dynamic-symbol-label"></span>"? Задайте выражение:</h2>
+        <input type="text" id="user-mapping" class="input-text" placeholder="Например: alert, console.log">
+        <button class="btn btn-cyan" onclick="saveWord()">Сохранить слово</button>
+        <button class="btn btn-sec" onclick="nextWindow(2, 1)">Назад</button>
+    </div>
