@@ -225,3 +225,135 @@
     </style>
 </head>
 <body>
+    <!-- Загрузочный экран -->
+    <div id="loader">
+        <div class="loader-logo">VYC</div>
+        <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+        <div class="loader-text" id="loader-text">Инициализация<span class="loader-cursor"></span></div>
+    </div>
+
+    <!-- Шаги интерфейса и окна (Шаг 1, Шаг 2, Главное меню, Библиотека слов и Песочница Li-Py) -->
+    <!-- Полную HTML-разметку всех окон вы можете найти в исходных материалах. -->
+    <div id="win1" class="window visible">...</div>
+    <div id="win2" class="window">...</div>
+    <div id="win3" class="window">...</div>
+    <div id="win-library" class="window">...</div>
+    <div id="win-sandbox" class="window
+    <script>
+        let keywordsLibrary = {}; 
+        let currentSymbol = '';
+        let useAllRules = false;
+
+        // Эмуляция загрузки лоадера
+        window.addEventListener('DOMContentLoaded', () => {
+            const loaderTexts = ["Инициализация...", "Загрузка модулей Li-Py...", "Готово!"];
+            let step = 0;
+            const textEl = document.getElementById('loader-text');
+            const interval = setInterval(() => {
+                if(step < loaderTexts.length) {
+                    textEl.innerHTML = loaderTexts[step] + '<span class="loader-cursor"></span>';
+                    step++;
+                } else {
+                    clearInterval(interval);
+                    document.getElementById('loader').classList.add('hidden');
+                }
+            }, 600);
+        });
+
+        // Переключение окон
+        function nextWindow(currentId, nextId) {
+            const getWin = (id) => document.getElementById(id === 'library' ? 'win-library' : id === 'sandbox' ? 'win-sandbox' : 'win' + id);
+            const curWin = getWin(currentId);
+            const nextWin = getWin(nextId);
+            if(curWin) curWin.classList.remove('visible');
+            if(nextWin) nextWin.classList.add('visible');
+        }
+
+        // Шаг 1 -> Шаг 2
+        function setupStep2() {
+            currentSymbol = document.getElementById('user-symbol').value.trim();
+            if (!currentSymbol) return alert('Введите слово или символ!');
+            document.getElementById('dynamic-symbol-label').innerText = currentSymbol;
+            nextWindow(1, 2);
+        }
+
+        // Сохранение (Шаг 2 -> Меню)
+        function saveWord() {
+            const mapping = document.getElementById('user-mapping').value.trim();
+            if (!mapping) return alert('Задайте выражение для замены!');
+            keywordsLibrary[currentSymbol] = mapping;
+            document.getElementById('user-mapping').value = '';
+            nextWindow(2, 3);
+        }
+
+        // Открытие песочницы
+        function openSandbox(allRules) {
+            useAllRules = allRules;
+            const area = document.getElementById('sandbox-code');
+            document.getElementById('console-output').innerText = "Ожидание запуска...";
+
+            if (!allRules) {
+                area.value = `${currentSymbol}("Привет, VYC!");`;
+            } else {
+                area.value = `// Все сохраненные правила:\n`;
+                for(let key in keywordsLibrary) {
+                    area.value += `${key}("Тест: ${keywordsLibrary[key]}");\n`;
+                }
+            }
+            nextWindow(3, 'sandbox');
+        }
+
+        // Парсер и запуск кода
+        function runSandboxCode() {
+            let code = document.getElementById('sandbox-code').value;
+            const output = document.getElementById('console-output');
+            
+            try {
+                if (!useAllRules) {
+                    if(currentSymbol && keywordsLibrary[currentSymbol]) {
+                        code = code.replace(new RegExp(currentSymbol, 'g'), keywordsLibrary[currentSymbol]);
+                    }
+                } else {
+                    for (let key in keywordsLibrary) {
+                        code = code.replace(new RegExp(key, 'g'), keywordsLibrary[key]);
+                    }
+                }
+
+                let logBuffer = [];
+                const originalLog = console.log;
+                console.log = (...args) => logBuffer.push(args.join(' '));
+
+                eval(code); // Безопасное выполнение в контексте песочницы
+
+                console.log = originalLog;
+                output.innerText = logBuffer.length > 0 ? "[Вывод Li-Py]:\n" + logBuffer.join('\n') : "[Выполнено без вывода].\nКод: " + code;
+            } catch (err) {
+                output.innerText = "[Ошибка Li-Py]:\n" + err.message;
+            }
+        }
+
+        // Открытие библиотеки
+        function openLibrary() {
+            const container = document.getElementById('library-list-container');
+            container.innerHTML = '';
+
+            if (Object.keys(keywordsLibrary).length === 0) {
+                container.innerHTML = '<div style="color:#666;text-align:center;padding:10px;">Библиотека пуста</div>';
+            } else {
+                for (let key in keywordsLibrary) {
+                    const item = document.createElement('div');
+                    item.className = 'library-item';
+                    item.innerHTML = `<span><strong>${key}</strong> → ${keywordsLibrary[key]}</span><button class="del-btn" onclick="deleteWord('${key}')">Удалить</button>`;
+                    container.appendChild(item);
+                }
+            }
+            nextWindow(3, 'library');
+        }
+
+        function deleteWord(key) {
+            delete keywordsLibrary[key];
+            openLibrary();
+        }
+    </script>
+</body>
+                </html>
