@@ -46,6 +46,7 @@
         #loader.hidden {
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
         }
         .loader-logo {
             font-size: 2.2rem;
@@ -273,41 +274,60 @@
     </div>
 
     <script>
-        let dictionary = [];
-        let currentSymbol = "";
-        let currentMapping = "";
-        let isGlobalSandbox = false;
+        var dictionary = [];
+        var currentSymbol = "";
+        var currentMapping = "";
+        var isGlobalSandbox = false;
 
-        // ===== ЗАГРУЗОЧНЫЙ ЭКРАН =====
+        // ===== СТРАХОВКА: гарантированно прячем лоадер через 3 секунды =====
+        setTimeout(function() {
+            var l = document.getElementById('loader');
+            if (l) {
+                l.classList.add('hidden');
+                l.style.display = 'none';
+            }
+        }, 3000);
+
+        // ===== АНИМАЦИЯ ЗАГРУЗОЧНОГО ЭКРАНА =====
         (function playLoader() {
-            const texts = [
-                "Инициализация...",
-                "Загрузка ядра Li-Py...",
-                "Компиляция синтаксиса...",
-                "Подключение библиотеки...",
-                "Готово."
-            ];
-            const textEl = document.getElementById('loader-text');
-            const loader = document.getElementById('loader');
-            let i = 0;
+            try {
+                var texts = [
+                    "Инициализация...",
+                    "Загрузка ядра Li-Py...",
+                    "Компиляция синтаксиса...",
+                    "Подключение библиотеки...",
+                    "Готово."
+                ];
+                var textEl = document.getElementById('loader-text');
+                var loader = document.getElementById('loader');
+                if (!textEl || !loader) return;
 
-            const interval = setInterval(() => {
-                i++;
-                if (i < texts.length) {
-                    textEl.innerHTML = texts[i] + '<span class="loader-cursor"></span>';
-                } else {
-                    clearInterval(interval);
+                var i = 0;
+                var interval = setInterval(function() {
+                    i++;
+                    if (i < texts.length) {
+                        textEl.innerHTML = texts[i] + '<span class="loader-cursor"></span>';
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 400);
+
+                setTimeout(function() {
+                    loader.classList.add('hidden');
+                    setTimeout(function() { loader.style.display = 'none'; }, 700);
+                }, 2100);
+            } catch (e) {
+                // если что-то упало — прячем лоадер сразу
+                var l = document.getElementById('loader');
+                if (l) {
+                    l.classList.add('hidden');
+                    l.style.display = 'none';
                 }
-            }, 400);
-
-            setTimeout(() => {
-                loader.classList.add('hidden');
-                setTimeout(() => { loader.style.display = 'none'; }, 700);
-            }, 2100);
+            }
         })();
 
         window.onload = function() {
-            let saved = localStorage.getItem('vyc_dict');
+            var saved = localStorage.getItem('vyc_dict');
             if (saved) {
                 try {
                     dictionary = JSON.parse(saved);
@@ -337,7 +357,7 @@
 
         function saveWord() {
             currentMapping = document.getElementById('user-mapping').value.trim();
-            let existingIndex = dictionary.findIndex(item => item.symbol === currentSymbol);
+            var existingIndex = dictionary.findIndex(function(item) { return item.symbol === currentSymbol; });
             if (existingIndex !== -1) {
                 dictionary[existingIndex].mapping = currentMapping;
             } else {
@@ -348,19 +368,19 @@
         }
 
         function deleteWord(symbol) {
-            dictionary = dictionary.filter(item => item.symbol !== symbol);
+            dictionary = dictionary.filter(function(item) { return item.symbol !== symbol; });
             localStorage.setItem('vyc_dict', JSON.stringify(dictionary));
             openLibrary();
         }
 
         function openLibrary() {
-            const container = document.getElementById('library-content');
+            var container = document.getElementById('library-content');
             container.innerHTML = "";
             if (dictionary.length === 0) {
                 container.innerHTML = "<div class='library-item'>Библиотека пуста</div>";
             } else {
-                dictionary.forEach(item => {
-                    let div = document.createElement('div');
+                dictionary.forEach(function(item) {
+                    var div = document.createElement('div');
                     div.className = 'library-item';
                     div.innerHTML = "<span>" + item.symbol + " -> " + item.mapping + "</span><button class='del-btn' onclick='deleteWord(\"" + item.symbol + "\")'>X</button>";
                     container.appendChild(div);
@@ -371,17 +391,17 @@
 
         function openSandbox(globalMode) {
             isGlobalSandbox = globalMode;
-            const title = document.getElementById('sandbox-title');
-            const editor = document.getElementById('ide-editor');
+            var title = document.getElementById('sandbox-title');
+            var editor = document.getElementById('ide-editor');
             document.getElementById('console-output').innerText = "Ожидание запуска...";
             
             if (globalMode) {
                 title.innerText = "Свободный код (Активны все ваши правила):";
-                let savedCode = localStorage.getItem('vyc_code');
+                var savedCode = localStorage.getItem('vyc_code');
                 editor.value = savedCode || "";
             } else {
                 title.innerText = "Тест слова: " + currentSymbol;
-                if (currentMapping.includes('#')) {
+                if (currentMapping.indexOf('#') !== -1) {
                     editor.value = currentSymbol + " Это тест вашего комментария\ninternalLog(\"Строка выполнена успешно\")";
                 } else {
                     editor.value = currentSymbol + "(\"Тест прошел успешно!\")";
@@ -396,44 +416,41 @@
         }
 
         // ===== ГРАНИЦА СЛОВА (работает для кириллицы и латиницы) =====
-        // Используем юникод-классы. Если браузер их не поддерживает — fallback.
-        let supportsUnicodeProps = false;
-        try {
-            new RegExp('\\p{L}', 'u');
-            supportsUnicodeProps = true;
-        } catch(e) {
-            supportsUnicodeProps = false;
-        }
-
         function replaceWord(text, word, replacement) {
-            const escaped = escapeRegExp(word);
-            if (supportsUnicodeProps) {
-                // Юникод-режим: любые буквы/цифры любого алфавита
-                const re = new RegExp(
+            var escaped = escapeRegExp(word);
+            var supportsUnicode = false;
+            try {
+                new RegExp('\\p{L}', 'u');
+                supportsUnicode = true;
+            } catch(e) {
+                supportsUnicode = false;
+            }
+
+            if (supportsUnicode) {
+                var re = new RegExp(
                     '(^|[^\\p{L}\\p{N}_])' + escaped + '(?=[^\\p{L}\\p{N}_]|$)',
                     'gu'
                 );
                 return text.replace(re, function(m, p1) { return p1 + replacement; });
             } else {
-                // Fallback: явно перечисляем латиницу + кириллицу
-                const re = new RegExp(
+                var re2 = new RegExp(
                     '(^|[^A-Za-z0-9_А-Яа-яЁё])' + escaped + '(?=[^A-Za-z0-9_А-Яа-яЁё]|$)',
                     'g'
                 );
-                return text.replace(re, function(m, p1) { return p1 + replacement; });
+                return text.replace(re2, function(m, p1) { return p1 + replacement; });
             }
         }
 
         function runCustomCode() {
-            const rawCode = document.getElementById('ide-editor').value;
-            const consoleOut = document.getElementById('console-output');
+            var rawCode = document.getElementById('ide-editor').value;
+            var consoleOut = document.getElementById('console-output');
             consoleOut.innerText = "";
 
             if (isGlobalSandbox) {
                 localStorage.setItem('vyc_code', rawCode);
             }
 
-            let runtimeLogs = [];
+            var runtimeLogs = [];
             function internalLog(msg) {
                 runtimeLogs.push(msg);
             }
@@ -442,41 +459,40 @@
             }
 
             try {
-                let cleanLines = [];
-                let lines = rawCode.split('\n');
-                let activeRules = isGlobalSandbox ? dictionary : [{ symbol: currentSymbol, mapping: currentMapping }];
+                var cleanLines = [];
+                var lines = rawCode.split('\n');
+                var activeRules = isGlobalSandbox ? dictionary : [{ symbol: currentSymbol, mapping: currentMapping }];
 
-                lines.forEach(line => {
-                    let processed = line;
+                lines.forEach(function(line) {
+                    var processed = line;
                     
-                    activeRules.forEach(rule => {
+                    activeRules.forEach(function(rule) {
                         if (!rule || !rule.symbol) return;
-                        let isCommentMode = rule.mapping.includes('#');
-                        let isPrintMode = rule.mapping.includes('print');
+                        var isCommentMode = rule.mapping.indexOf('#') !== -1;
+                        var isPrintMode = rule.mapping.indexOf('print') !== -1;
                         
                         if (isCommentMode) {
-                            let targetIndex = processed.indexOf(rule.symbol);
+                            var targetIndex = processed.indexOf(rule.symbol);
                             if (targetIndex !== -1) {
                                 processed = processed.substring(0, targetIndex);
                             }
                         } else if (isPrintMode) {
-                            // Заменяем только целые слова (работает и для русских слов)
                             processed = replaceWord(processed, rule.symbol, 'internalLog');
                         }
                     });
 
-                    if (processed.includes('input()')) {
+                    if (processed.indexOf('input()') !== -1) {
                         processed = processed.replace('int(input())', 'parseInt(internalInput())');
                         processed = processed.replace('input()', 'internalInput()');
-                        if (!processed.trim().startsWith('let') && !processed.trim().startsWith('var')) {
-                            let spaces = processed.match(/^\s*/);
+                        if (processed.trim().indexOf('let') !== 0 && processed.trim().indexOf('var') !== 0) {
+                            var spaces = processed.match(/^\s*/)[0];
                             processed = spaces + "let " + processed.trim();
                         }
                     }
 
                     if (/^\s*(if|i|either|or)\s+/.test(processed)) {
                         processed = processed.replace(/^\s*(if|i|either|or)\s+/, 'if (');
-                        if (processed.trim().endsWith(':')) {
+                        if (processed.trim().slice(-1) === ':') {
                             processed = processed.replace(/:\s*$/, ') {');
                         } else {
                             processed = processed + ') {';
@@ -490,20 +506,20 @@
                     cleanLines.push(processed);
                 });
 
-                let openBrackets = 0;
-                for (let i = 0; i < cleanLines.length; i++) {
-                    if (cleanLines[i].includes('{')) openBrackets++;
+                var openBrackets = 0;
+                for (var i = 0; i < cleanLines.length; i++) {
+                    if (cleanLines[i].indexOf('{') !== -1) openBrackets++;
                     if (i < cleanLines.length - 1) {
-                        let nextLineIndent = cleanLines[i+1].match(/^\s*/)[0].length;
-                        let currentLineIndent = cleanLines[i].match(/^\s*/)[0].length;
-                        if (cleanLines[i+1].includes('else {')) {
+                        var nextLineIndent = cleanLines[i+1].match(/^\s*/)[0].length;
+                        var currentLineIndent = cleanLines[i].match(/^\s*/)[0].length;
+                        if (cleanLines[i+1].indexOf('else {') !== -1) {
                             if (openBrackets > 0) {
                                 cleanLines[i] = cleanLines[i] + '\n}';
                                 openBrackets--;
                             }
                         } else if (nextLineIndent < currentLineIndent && openBrackets > 0) {
-                            let diff = Math.floor((currentLineIndent - nextLineIndent) / 4) || 1;
-                            for(let d=0; d<diff; d++) {
+                            var diff = Math.floor((currentLineIndent - nextLineIndent) / 4) || 1;
+                            for (var d = 0; d < diff; d++) {
                                 if (openBrackets > 0) {
                                     cleanLines[i] = cleanLines[i] + '\n}';
                                     openBrackets--;
@@ -512,18 +528,3 @@
                         }
                     }
                 }
-                while (openBrackets > 0) {
-                    cleanLines.push('}');
-                    openBrackets--;
-                }
-
-                let executableJs = cleanLines.join('\n');
-                const executor = new Function('internalLog', 'internalInput', executableJs);
-                executor(internalLog, internalInput);
-
-                if (runtimeLogs.length > 0) {
-                    consoleOut.innerText = runtimeLogs.join('\n');
-                } else {
-                    consoleOut.innerText = "Код выполнен успешно (без вывода в консоль).";
-                }
-            
