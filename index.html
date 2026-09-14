@@ -6,26 +6,19 @@
     <title>VYC - Visual Your Code</title>
     <style>
         :root {
-            --bg: #0a0614;
-            --card: rgba(22, 16, 38, 0.85);
-            --field: #0d0820;
+            --bg: #0d1117;
+            --card: #161b22;
+            --field: #090d13;
             --green: #00ff66;
             --cyan: #00f0ff;
-            --purple: #a855f7;
-            --purple-soft: #7c3aed;
             --text: #c9d1d9;
-            --border: #2d1b4e;
-            --glow-purple: rgba(168, 85, 247, 0.35);
-            --glow-cyan: rgba(0, 240, 255, 0.25);
+            --border: #30363d;
         }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
-        }
-        html, body {
-            height: 100%;
         }
         body {
             background-color: var(--bg);
@@ -35,100 +28,112 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
             overflow-x: hidden;
         }
 
-        /* ===== ФОН (всё в минусовом z-index, под body) ===== */
-        .bg-gradient {
+        /* ===== ЗАГРУЗОЧНЫЙ ЭКРАН ===== */
+        #loader {
             position: fixed;
             inset: 0;
-            z-index: -3;
-            background:
-                radial-gradient(circle at 15% 20%, rgba(124, 58, 237, 0.28), transparent 45%),
-                radial-gradient(circle at 85% 80%, rgba(0, 240, 255, 0.14), transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.10), transparent 60%),
-                #0a0614;
-            animation: breathe 12s ease-in-out infinite alternate;
-            pointer-events: none;
+            background: #0d1117;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
         }
-        @keyframes breathe {
-            0%   { filter: hue-rotate(0deg) brightness(1); }
-            100% { filter: hue-rotate(15deg) brightness(1.15); }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
         }
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            background-image:
-                linear-gradient(rgba(168, 85, 247, 0.07) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(168, 85, 247, 0.07) 1px, transparent 1px);
-            background-size: 40px 40px;
-            mask-image: radial-gradient(circle at 50% 50%, #000 30%, transparent 85%);
-            -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 30%, transparent 85%);
-            animation: gridFloat 30s linear infinite;
-            pointer-events: none;
+        .loader-logo {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--cyan);
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+            animation: logoPulse 1.5s ease-in-out infinite;
         }
-        @keyframes gridFloat {
-            0%   { background-position: 0 0, 0 0; }
-            100% { background-position: 40px 40px, 40px 40px; }
+        @keyframes logoPulse {
+            0%, 100% { text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); transform: scale(1); }
+            50%      { text-shadow: 0 0 30px rgba(0, 240, 255, 1), 0 0 50px rgba(0, 255, 102, 0.5); transform: scale(1.05); }
         }
-        #bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            display: block;
+        .loader-bar {
+            width: 260px;
+            height: 6px;
+            background: #090d13;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .loader-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--green), var(--cyan));
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.7);
+            animation: loadFill 2s ease forwards;
+        }
+        @keyframes loadFill {
+            0%   { width: 0%; }
+            30%  { width: 35%; }
+            60%  { width: 60%; }
+            100% { width: 100%; }
+        }
+        .loader-text {
+            font-size: 0.9rem;
+            color: var(--green);
+            letter-spacing: 1px;
+            min-height: 1.2em;
+            text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+        }
+        .loader-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1em;
+            background: var(--green);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.7s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
         }
 
-        /* ===== ОКНА (всё выше фона) ===== */
+        /* ===== ОКНА ===== */
         .window {
-            position: relative;
-            z-index: 10;
             background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
             padding: 25px;
             width: 100%;
             max-width: 500px;
-            box-shadow:
-                0 10px 40px rgba(0,0,0,0.8),
-                0 0 40px var(--glow-purple),
-                inset 0 0 0 1px rgba(168, 85, 247, 0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             display: none;
-            animation: windowIn 0.35s ease;
-        }
-        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-            .window {
-                background: rgba(22, 16, 38, 0.75);
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-            }
-        }
-        @keyframes windowIn {
-            from { opacity: 0; transform: translateY(8px) scale(0.98); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         .window.visible {
             display: block;
+            animation: windowIn 0.4s ease;
         }
-
+        @keyframes windowIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
         h1.brand-title {
-            color: var(--purple);
+            color: var(--cyan);
             font-size: 1.5rem;
             text-align: center;
             margin-bottom: 10px;
             letter-spacing: 2px;
-            text-shadow:
-                0 0 10px rgba(168, 85, 247, 0.5),
-                0 0 25px rgba(168, 85, 247, 0.25);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
         }
         h2 {
-            color: var(--cyan);
+            color: var(--green);
             font-size: 1.15rem;
             margin-bottom: 20px;
             line-height: 1.4;
-            text-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
         }
         .input-text, textarea {
             width: 100%;
@@ -140,11 +145,6 @@
             outline: none;
             font-size: 1rem;
             margin-bottom: 20px;
-            transition: 0.2s;
-        }
-        .input-text:focus, textarea:focus {
-            border-color: var(--purple);
-            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2), 0 0 15px rgba(168, 85, 247, 0.3);
         }
         textarea {
             height: 200px;
@@ -163,39 +163,28 @@
             font-size: 0.95rem;
             transition: 0.2s;
             margin-bottom: 10px;
-            position: relative;
-            z-index: 11;
         }
         .btn:hover {
-            box-shadow: 0 0 18px rgba(0, 255, 102, 0.6);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
             background: #00e65c;
-            transform: translateY(-1px);
         }
-        .btn:active {
-            transform: translateY(0);
+        .btn-cyan {
+            background: var(--cyan);
         }
-        .btn-cyan { background: var(--cyan); }
         .btn-cyan:hover {
-            box-shadow: 0 0 18px rgba(0, 240, 255, 0.6);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
             background: #00d8e6;
         }
-        .btn-purple { background: var(--purple); color: #fff; }
-        .btn-purple:hover {
-            box-shadow: 0 0 18px rgba(168, 85, 247, 0.7);
-            background: #9333ea;
-        }
         .btn-sec {
-            background: #1a1030;
+            background: #21262d;
             color: #c9d1d9;
             border: 1px solid var(--border);
         }
         .btn-sec:hover {
-            background: #251547;
-            border-color: var(--purple);
-            box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+            background: #30363d;
         }
         .console-box {
-            background: rgba(0, 0, 0, 0.6);
+            background: #000;
             border: 1px solid var(--border);
             padding: 15px;
             border-radius: 6px;
@@ -204,7 +193,7 @@
             color: var(--cyan);
             font-size: 0.95rem;
             margin-top: 15px;
-            box-shadow: inset 0 0 15px rgba(168, 85, 247, 0.12);
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.1);
         }
         .library-list {
             background: var(--field);
@@ -217,7 +206,7 @@
         }
         .library-item {
             padding: 8px 0;
-            border-bottom: 1px solid #1a1030;
+            border-bottom: 1px solid #21262d;
             font-size: 0.9rem;
             display: flex;
             justify-content: space-between;
@@ -236,145 +225,144 @@
 </head>
 <body>
 
-    <!-- Фон -->
-    <div class="bg-gradient"></div>
-    <div class="bg-grid"></div>
-    <canvas id="bg-canvas"></canvas>
+    <!-- Загрузочный экран -->
+    <div id="loader">
+        <div class="loader-logo">VYC</div>
+        <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+        <div class="loader-text" id="loader-text">Инициализация<span class="loader-cursor"></span></div>
+    </div>
 
     <div id="win1" class="window visible">
         <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
         <h2>Шаг 1: Какой символ или ключевое слово вы хотите перепрограммировать?</h2>
         <input type="text" id="user-symbol" class="input-text" value="withdraw" placeholder="Например: clue, withdraw, text">
-        <button type="button" class="btn" onclick="setupStep2()">Далее</button>
+        <button class="btn" onclick="setupStep2()">Далее</button>
     </div>
 
     <div id="win2" class="window">
         <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
         <h2>Шаг 2: Какое значение выдать "<span id="dynamic-symbol-label"></span>"? Задайте выражение:</h2>
         <input type="text" id="user-mapping" class="input-text" placeholder="Например: = print, = #, = input">
-        <button type="button" class="btn btn-cyan" onclick="saveWord()">Сохранить слово</button>
-        <button type="button" class="btn btn-sec" onclick="nextWindow(2, 1)">Назад</button>
+        <button class="btn btn-cyan" onclick="saveWord()">Сохранить слово</button>
+        <button class="btn btn-sec" onclick="nextWindow(2, 1)">Назад</button>
     </div>
 
     <div id="win3" class="window">
         <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
         <h2>Главное меню управления синтаксисом:</h2>
-        <button type="button" class="btn" onclick="openSandbox(false)">Тест текущего слова</button>
-        <button type="button" class="btn btn-cyan" onclick="openSandbox(true)">Свободный код (Все правила)</button>
-        <button type="button" class="btn btn-sec" onclick="openLibrary()">Открыть библиотеку слов</button>
-        <button type="button" class="btn btn-sec" onclick="backToStart()">Создать новое слово</button>
+        <button class="btn" onclick="openSandbox(false)">Тест текущего слова</button>
+        <button class="btn btn-cyan" onclick="openSandbox(true)">Свободный код (Все правила)</button>
+        <button class="btn btn-sec" onclick="openLibrary()">Открыть библиотеку слов</button>
+        <button class="btn btn-sec" onclick="backToStart()">Создать новое слово</button>
     </div>
 
     <div id="win4" class="window">
         <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
         <h2>Библиотека сохраненных правил синтаксиса:</h2>
         <div id="library-content" class="library-list"></div>
-        <button type="button" class="btn" onclick="nextWindow(4, 3)">Назад в меню</button>
+        <button class="btn" onclick="nextWindow(4, 3)">Назад в меню</button>
     </div>
 
     <div id="win5" class="window">
         <h1 class="brand-title">VYC: VISUAL YOUR CODE</h1>
         <h2 id="sandbox-title">Песочница Li-Py:</h2>
         <textarea id="ide-editor"></textarea>
-        <button type="button" class="btn" onclick="runCustomCode()">Запустить код</button>
-        <button type="button" class="btn btn-sec" onclick="nextWindow(5, 3)">Назад в меню</button>
+        <button class="btn" onclick="runCustomCode()">Запустить код</button>
+        <button class="btn btn-sec" onclick="nextWindow(5, 3)">Назад в меню</button>
         <div class="console-box" id="console-output">Ожидание запуска...</div>
     </div>
 
     <script>
-        // ===== ДАННЫЕ =====
-        var dictionary = [];
-        var currentSymbol = "";
-        var currentMapping = "";
-        var isGlobalSandbox = false;
+        let dictionary = [];
+        let currentSymbol = "";
+        let currentMapping = "";
+        let isGlobalSandbox = false;
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
-        window.addEventListener('load', function() {
-            try {
-                var saved = localStorage.getItem('vyc_dict');
-                if (saved) {
-                    dictionary = JSON.parse(saved);
-                    if (!Array.isArray(dictionary)) dictionary = [];
+        // ===== ЗАГРУЗОЧНЫЙ ЭКРАН =====
+        (function playLoader() {
+            const texts = [
+                "Инициализация...",
+                "Загрузка ядра Li-Py...",
+                "Компиляция синтаксиса...",
+                "Подключение библиотеки...",
+                "Готово."
+            ];
+            const textEl = document.getElementById('loader-text');
+            const loader = document.getElementById('loader');
+            let i = 0;
+
+            const interval = setInterval(() => {
+                i++;
+                if (i < texts.length) {
+                    textEl.innerHTML = texts[i] + '<span class="loader-cursor"></span>';
+                } else {
+                    clearInterval(interval);
                 }
-            } catch (e) {
-                dictionary = [];
-            }
-        });
+            }, 400);
 
-        // ===== НАВИГАЦИЯ =====
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                setTimeout(() => { loader.style.display = 'none'; }, 700);
+            }, 2100);
+        })();
+
+        window.onload = function() {
+            let saved = localStorage.getItem('vyc_dict');
+            if (saved) {
+                try {
+                    dictionary = JSON.parse(saved);
+                } catch(e) {
+                    dictionary = [];
+                }
+            }
+        };
+
         function nextWindow(current, next) {
-            var cur = document.getElementById('win' + current);
-            var nxt = document.getElementById('win' + next);
-            if (cur) cur.classList.remove('visible');
-            if (nxt) nxt.classList.add('visible');
+            document.getElementById('win' + current).classList.remove('visible');
+            document.getElementById('win' + next).classList.add('visible');
         }
 
         function backToStart() {
-            var s = document.getElementById('user-symbol');
-            var m = document.getElementById('user-mapping');
-            if (s) s.value = "";
-            if (m) m.value = "";
+            document.getElementById('user-symbol').value = "";
+            document.getElementById('user-mapping').value = "";
             nextWindow(3, 1);
         }
 
         function setupStep2() {
-            var input = document.getElementById('user-symbol');
-            currentSymbol = (input && input.value.trim()) || "withdraw";
-            var label = document.getElementById('dynamic-symbol-label');
-            if (label) label.innerText = currentSymbol;
-            var mapping = document.getElementById('user-mapping');
-            if (mapping) mapping.value = currentSymbol + " = print";
+            currentSymbol = document.getElementById('user-symbol').value.trim() || "withdraw";
+            document.getElementById('dynamic-symbol-label').innerText = currentSymbol;
+            document.getElementById('user-mapping').value = currentSymbol + " = print";
             nextWindow(1, 2);
         }
 
         function saveWord() {
-            var m = document.getElementById('user-mapping');
-            currentMapping = (m && m.value.trim()) || "";
-            if (!currentMapping) {
-                alert("Введите значение для слова");
-                return;
-            }
-            var existingIndex = -1;
-            for (var i = 0; i < dictionary.length; i++) {
-                if (dictionary[i].symbol === currentSymbol) { existingIndex = i; break; }
-            }
+            currentMapping = document.getElementById('user-mapping').value.trim();
+            let existingIndex = dictionary.findIndex(item => item.symbol === currentSymbol);
             if (existingIndex !== -1) {
                 dictionary[existingIndex].mapping = currentMapping;
             } else {
                 dictionary.push({ symbol: currentSymbol, mapping: currentMapping });
             }
-            try {
-                localStorage.setItem('vyc_dict', JSON.stringify(dictionary));
-            } catch (e) {}
+            localStorage.setItem('vyc_dict', JSON.stringify(dictionary));
             nextWindow(2, 3);
         }
 
         function deleteWord(symbol) {
-            dictionary = dictionary.filter(function(item) { return item.symbol !== symbol; });
-            try {
-                localStorage.setItem('vyc_dict', JSON.stringify(dictionary));
-            } catch (e) {}
+            dictionary = dictionary.filter(item => item.symbol !== symbol);
+            localStorage.setItem('vyc_dict', JSON.stringify(dictionary));
             openLibrary();
         }
 
         function openLibrary() {
-            var container = document.getElementById('library-content');
-            if (!container) return;
+            const container = document.getElementById('library-content');
             container.innerHTML = "";
             if (dictionary.length === 0) {
                 container.innerHTML = "<div class='library-item'>Библиотека пуста</div>";
             } else {
-                dictionary.forEach(function(item) {
-                    var div = document.createElement('div');
+                dictionary.forEach(item => {
+                    let div = document.createElement('div');
                     div.className = 'library-item';
-                    var span = document.createElement('span');
-                    span.textContent = item.symbol + " -> " + item.mapping;
-                    var btn = document.createElement('button');
-                    btn.className = 'del-btn';
-                    btn.textContent = 'X';
-                    btn.onclick = function() { deleteWord(item.symbol); };
-                    div.appendChild(span);
-                    div.appendChild(btn);
+                    div.innerHTML = "<span>" + item.symbol + " -> " + item.mapping + "</span><button class='del-btn' onclick='deleteWord(\"" + item.symbol + "\")'>X</button>";
                     container.appendChild(div);
                 });
             }
@@ -383,83 +371,77 @@
 
         function openSandbox(globalMode) {
             isGlobalSandbox = globalMode;
-            var title = document.getElementById('sandbox-title');
-            var editor = document.getElementById('ide-editor');
-            var out = document.getElementById('console-output');
-            if (out) out.innerText = "Ожидание запуска...";
-
+            const title = document.getElementById('sandbox-title');
+            const editor = document.getElementById('ide-editor');
+            document.getElementById('console-output').innerText = "Ожидание запуска...";
+            
             if (globalMode) {
-                if (title) title.innerText = "Свободный код (Активны все ваши правила):";
-                try {
-                    var savedCode = localStorage.getItem('vyc_code');
-                    if (editor) editor.value = savedCode || "";
-                } catch (e) {}
+                title.innerText = "Свободный код (Активны все ваши правила):";
+                let savedCode = localStorage.getItem('vyc_code');
+                editor.value = savedCode || "";
             } else {
-                if (title) title.innerText = "Тест слова: " + currentSymbol;
-                if (editor) {
-                    if (currentMapping.indexOf('#') !== -1) {
-                        editor.value = currentSymbol + " Это тест вашего комментария\ninternalLog(\"Строка выполнена успешно\")";
-                    } else {
-                        editor.value = currentSymbol + "(\"Тест прошел успешно!\")";
-                    }
+                title.innerText = "Тест слова: " + currentSymbol;
+                if (currentMapping.includes('#')) {
+                    editor.value = currentSymbol + " Это тест вашего комментария\ninternalLog(\"Строка выполнена успешно\")";
+                } else {
+                    editor.value = currentSymbol + "(\"Тест прошел успешно!\")";
                 }
             }
             nextWindow(3, 5);
         }
 
-        // ===== ЗАПУСК КОДА =====
         function runCustomCode() {
-            var editor = document.getElementById('ide-editor');
-            var consoleOut = document.getElementById('console-output');
-            if (!editor || !consoleOut) return;
-
-            var rawCode = editor.value;
+            const rawCode = document.getElementById('ide-editor').value;
+            const consoleOut = document.getElementById('console-output');
             consoleOut.innerText = "";
 
             if (isGlobalSandbox) {
-                try { localStorage.setItem('vyc_code', rawCode); } catch (e) {}
+                localStorage.setItem('vyc_code', rawCode);
             }
 
-            var runtimeLogs = [];
-            function internalLog(msg) { runtimeLogs.push(String(msg)); }
-            function internalInput(msg) { return prompt(msg || "Введите значение:") || "0"; }
+            let runtimeLogs = [];
+            function internalLog(msg) {
+                runtimeLogs.push(msg);
+            }
+            function internalInput(msg) {
+                return prompt(msg || "Введите значение:") || "0";
+            }
 
             try {
-                var cleanLines = [];
-                var lines = rawCode.split('\n');
-                var activeRules = isGlobalSandbox ? dictionary : [{ symbol: currentSymbol, mapping: currentMapping }];
+                let cleanLines = [];
+                let lines = rawCode.split('\n');
+                let activeRules = isGlobalSandbox ? dictionary : [{ symbol: currentSymbol, mapping: currentMapping }];
 
-                lines.forEach(function(line) {
-                    var processed = line;
-
-                    activeRules.forEach(function(rule) {
-                        var isCommentMode = rule.mapping.indexOf('#') !== -1;
-                        var isPrintMode = rule.mapping.indexOf('print') !== -1;
-
+                lines.forEach(line => {
+                    let processed = line;
+                    
+                    activeRules.forEach(rule => {
+                        let isCommentMode = rule.mapping.includes('#');
+                        let isPrintMode = rule.mapping.includes('print');
+                        
                         if (isCommentMode) {
-                            var targetIndex = processed.indexOf(rule.symbol);
+                            let targetIndex = processed.indexOf(rule.symbol);
                             if (targetIndex !== -1) {
                                 processed = processed.substring(0, targetIndex);
                             }
                         } else if (isPrintMode) {
-                            var escaped = rule.symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                            var regex = new RegExp('\\b' + escaped + '\\b', 'g');
+                            let regex = new RegExp('\\b' + rule.symbol + '\\b', 'g');
                             processed = processed.replace(regex, 'internalLog');
                         }
                     });
 
-                    if (processed.indexOf('input()') !== -1) {
+                    if (processed.includes('input()')) {
                         processed = processed.replace('int(input())', 'parseInt(internalInput())');
                         processed = processed.replace('input()', 'internalInput()');
-                        if (processed.trim().indexOf('let') !== 0 && processed.trim().indexOf('var') !== 0) {
-                            var spaces = processed.match(/^\s*/)[0];
+                        if (!processed.trim().startsWith('let') && !processed.trim().startsWith('var')) {
+                            let spaces = processed.match(/^\s*/);
                             processed = spaces + "let " + processed.trim();
                         }
                     }
 
                     if (/^\s*(if|i|either|or)\s+/.test(processed)) {
                         processed = processed.replace(/^\s*(if|i|either|or)\s+/, 'if (');
-                        if (processed.trim().slice(-1) === ':') {
+                        if (processed.trim().endsWith(':')) {
                             processed = processed.replace(/:\s*$/, ') {');
                         } else {
                             processed = processed + ') {';
@@ -469,24 +451,24 @@
                     if (/^\s*(else|otherwise)\s*:?/.test(processed)) {
                         processed = processed.replace(/^\s*(else|otherwise)\s*:?/, 'else {');
                     }
-
+                    
                     cleanLines.push(processed);
                 });
 
-                var openBrackets = 0;
-                for (var i = 0; i < cleanLines.length; i++) {
-                    if (cleanLines[i].indexOf('{') !== -1) openBrackets++;
+                let openBrackets = 0;
+                for (let i = 0; i < cleanLines.length; i++) {
+                    if (cleanLines[i].includes('{')) openBrackets++;
                     if (i < cleanLines.length - 1) {
-                        var nextLineIndent = cleanLines[i+1].match(/^\s*/)[0].length;
-                        var currentLineIndent = cleanLines[i].match(/^\s*/)[0].length;
-                        if (cleanLines[i+1].indexOf('else {') !== -1) {
+                        let nextLineIndent = cleanLines[i+1].match(/^\s*/)[0].length;
+                        let currentLineIndent = cleanLines[i].match(/^\s*/)[0].length;
+                        if (cleanLines[i+1].includes('else {')) {
                             if (openBrackets > 0) {
                                 cleanLines[i] = cleanLines[i] + '\n}';
                                 openBrackets--;
                             }
                         } else if (nextLineIndent < currentLineIndent && openBrackets > 0) {
-                            var diff = Math.floor((currentLineIndent - nextLineIndent) / 4) || 1;
-                            for (var d = 0; d < diff; d++) {
+                            let diff = Math.floor((currentLineIndent - nextLineIndent) / 4) || 1;
+                            for(let d=0; d<diff; d++) {
                                 if (openBrackets > 0) {
                                     cleanLines[i] = cleanLines[i] + '\n}';
                                     openBrackets--;
@@ -500,11 +482,19 @@
                     openBrackets--;
                 }
 
-                var executableJs = cleanLines.join('\n');
-                var executor = new Function('internalLog', 'internalInput', executableJs);
+                let executableJs = cleanLines.join('\n');
+                const executor = new Function('internalLog', 'internalInput', executableJs);
                 executor(internalLog, internalInput);
 
                 if (runtimeLogs.length > 0) {
                     consoleOut.innerText = runtimeLogs.join('\n');
                 } else {
-                    consoleOut.innerText = "К
+                    consoleOut.innerText = "Код выполнен успешно (без вывода в консоль).";
+                }
+            } catch (err) {
+                consoleOut.innerText = "[Ошибка компилятора Li-Py]: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
