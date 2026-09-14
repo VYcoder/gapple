@@ -390,6 +390,40 @@
             nextWindow(3, 5);
         }
 
+        // ===== ЭКРАНИРОВАНИЕ РЕГУЛЯРКИ =====
+        function escapeRegExp(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // ===== ГРАНИЦА СЛОВА (работает для кириллицы и латиницы) =====
+        // Используем юникод-классы. Если браузер их не поддерживает — fallback.
+        let supportsUnicodeProps = false;
+        try {
+            new RegExp('\\p{L}', 'u');
+            supportsUnicodeProps = true;
+        } catch(e) {
+            supportsUnicodeProps = false;
+        }
+
+        function replaceWord(text, word, replacement) {
+            const escaped = escapeRegExp(word);
+            if (supportsUnicodeProps) {
+                // Юникод-режим: любые буквы/цифры любого алфавита
+                const re = new RegExp(
+                    '(^|[^\\p{L}\\p{N}_])' + escaped + '(?=[^\\p{L}\\p{N}_]|$)',
+                    'gu'
+                );
+                return text.replace(re, function(m, p1) { return p1 + replacement; });
+            } else {
+                // Fallback: явно перечисляем латиницу + кириллицу
+                const re = new RegExp(
+                    '(^|[^A-Za-z0-9_А-Яа-яЁё])' + escaped + '(?=[^A-Za-z0-9_А-Яа-яЁё]|$)',
+                    'g'
+                );
+                return text.replace(re, function(m, p1) { return p1 + replacement; });
+            }
+        }
+
         function runCustomCode() {
             const rawCode = document.getElementById('ide-editor').value;
             const consoleOut = document.getElementById('console-output');
@@ -416,6 +450,7 @@
                     let processed = line;
                     
                     activeRules.forEach(rule => {
+                        if (!rule || !rule.symbol) return;
                         let isCommentMode = rule.mapping.includes('#');
                         let isPrintMode = rule.mapping.includes('print');
                         
@@ -425,8 +460,8 @@
                                 processed = processed.substring(0, targetIndex);
                             }
                         } else if (isPrintMode) {
-                            let regex = new RegExp('\\b' + rule.symbol + '\\b', 'g');
-                            processed = processed.replace(regex, 'internalLog');
+                            // Заменяем только целые слова (работает и для русских слов)
+                            processed = replaceWord(processed, rule.symbol, 'internalLog');
                         }
                     });
 
@@ -491,10 +526,4 @@
                 } else {
                     consoleOut.innerText = "Код выполнен успешно (без вывода в консоль).";
                 }
-            } catch (err) {
-                consoleOut.innerText = "[Ошибка компилятора Li-Py]: " + err.message;
-            }
-        }
-    </script>
-</body>
-</html>
+            
