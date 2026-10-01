@@ -84,14 +84,22 @@ h3{font-size:13px;font-weight:500;color:var(--mute);margin-bottom:8px}
 .rvc{position:relative;text-align:center;max-width:460px;width:100%;animation:pop .55s cubic-bezier(.2,1.5,.4,1)}
 @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
 .rvc .t{font-size:15px;color:var(--mute);margin-bottom:10px}
-.rvc .pic{filter:drop-shadow(0 0 28px color-mix(in srgb,var(--k) 70%,transparent));min-height:140px;display:flex;align-items:center;justify-content:center}
+.rvc .pic{position:relative;min-height:140px;display:flex;align-items:center;justify-content:center}
+.rvc .pic::before{content:"";position:absolute;inset:-35% -12%;background:radial-gradient(closest-side,color-mix(in srgb,var(--k) 70%,transparent),transparent);filter:blur(14px);animation:pulse 2.2s ease-in-out infinite}
+.rvc .pic>*{position:relative;filter:drop-shadow(0 0 18px color-mix(in srgb,var(--k) 80%,transparent))}
+#rv.leg .pic::before{inset:-55% -25%;background:radial-gradient(closest-side,#ffd36ccc,#e0a53a66 45%,transparent);animation-duration:1.6s}
+#rv.leg .pic>*{filter:drop-shadow(0 0 10px #ffd36c) drop-shadow(0 0 30px #e0a53a)}
+#rv.leg .rays{filter:brightness(1.6)}
+@keyframes pulse{50%{opacity:.55;transform:scale(1.08)}}
+.item.leg{box-shadow:0 0 14px #e0a53a40}
+.item.leg img{filter:drop-shadow(0 0 6px #e0a53acc)}
 .rvc img{width:100%;max-width:420px;object-fit:contain}
 .rvc .ph{font-size:96px}
 .rvc .nm{font-size:24px;font-weight:600;margin-top:10px}
 .rvc .sub{color:var(--k);font-size:13px;margin:2px 0 6px}
 .rvc .vv{font-size:20px;font-weight:600;color:var(--gold);margin-bottom:18px}
 #fx{position:fixed;inset:0;z-index:30;pointer-events:none}
-@media(prefers-reduced-motion:reduce){.strip,.wheelwrap canvas{transition-duration:.01s!important}.rays,.rvc,.wheelwrap.win{animation:none}}
+@media(prefers-reduced-motion:reduce){.strip,.wheelwrap canvas{transition-duration:.01s!important}.rays,.rvc,.wheelwrap.win,.rvc .pic::before{animation:none}}
 button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
 footer{text-align:center;color:var(--mute);font-size:11px;padding:10px 16px 24px}
 </style>
@@ -178,7 +186,7 @@ const save=()=>{try{localStorage.setItem('oxad2',JSON.stringify(S))}catch(e){}};
 function card(sk,cls='',attr=''){
   const ic=sk.ico||'🔫';
   const pic=sk.img?`<img src="${sk.img}" alt="" loading="lazy" onerror="this.outerHTML='${ic}'">`:ic;
-  return `<div class="card item ${cls}" ${attr} style="--k:${RC[sk.rarity]}"><div class="pic">${pic}</div><div class="n">${sk.name}</div><div class="v">${fmt(sk.value)}</div></div>`;
+  return `<div class="card item ${cls}${sk.rarity==='l'?' leg':''}" ${attr} style="--k:${RC[sk.rarity]}"><div class="pic">${pic}</div><div class="n">${sk.name}</div><div class="v">${fmt(sk.value)}</div></div>`;
 }
 const poolOf=c=>SKINS.filter(s=>!c.weapons||c.weapons.includes(s.weapon));
 function roll(c){
@@ -201,7 +209,7 @@ function confetti(col){
 }
 const closeRv=()=>$('rv').classList.remove('on');
 function reveal(title,sk,itemId){
-  $('rv').style.setProperty('--k',RC[sk.rarity]);
+  $('rv').style.setProperty('--k',RC[sk.rarity]);$('rv').classList.toggle('leg',sk.rarity==='l');
   $('rvT').textContent=title;
   const ic=sk.ico||'🔫';
   $('rvPic').innerHTML=sk.img?`<img src="${sk.img}" alt="" onerror="this.outerHTML='<div class=ph>${ic}</div>'">`:`<div class="ph">${ic}</div>`;
