@@ -1,4 +1,5 @@
 const SKINS=[
+ {id:'riot',weapon:'Штурмовая винтовка',name:'Неудержимый',rerity:'1',collection:'state of riot',img:'riot.webp',value:1900}
  {id:'groza',weapon:'Штурмовая винтовка',name:'Гроза района',rarity:'l',collection:'Street Legacy',img:'groza.webp',value:1500},
  {id:'shepot',weapon:'Штурмовая винтовка',name:'Шепот предков',rarity:'l',collection:'Tribe of the Spark',img:'shepot.webp',value:1400},
  {id:'kraken',weapon:'Штурмовая винтовка',name:'Щупальца кракена',rarity:'l',collection:'Eldritch Depths',img:'kraken.webp',value:1700},
