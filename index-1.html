@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OXAD — симулятор кейсов Oxide</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{--bg:#1d2125;--panel:#262c32;--soft:#2e353c;--line:#363e46;--text:#e9e4d8;--mute:#8d98a0;--rust:#c9643a;--gold:#e3b04b;--win:#6dbb6a;--lose:#d0584e;--r:12px}
+*{box-sizing:border-box;margin:0}
+html,body{overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font:400 14px/1.4 Inter,system-ui,sans-serif}
+button{font:inherit;color:inherit}
+header{padding:14px 16px 10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.logo{font-size:20px;font-weight:600;color:var(--rust);letter-spacing:.06em}
+.bal{display:flex;gap:8px;align-items:center}
+.bal b{font-size:18px;font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
+.btn{background:var(--soft);border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px}
+.btn:hover:not(:disabled){border-color:var(--rust)}
+.btn.main{background:var(--rust);border-color:var(--rust);font-weight:500;font-size:15px;padding:10px 26px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+nav{display:flex;gap:4px;padding:4px;margin:0 16px;background:var(--panel);border-radius:999px;max-width:420px}
+nav button{flex:1;border:0;background:none;padding:8px 6px;border-radius:999px;cursor:pointer;color:var(--mute);font-size:14px}
+nav button.on{background:var(--soft);color:var(--text)}
+main{max-width:760px;margin:0 auto;padding:16px 16px 40px}
+.tab{display:none}.tab.on{display:block}
+h2{font-size:17px;font-weight:600;margin:0 0 10px}
+h3{font-size:13px;font-weight:500;color:var(--mute);margin:0 0 8px}
+.panel{background:var(--panel);border-radius:var(--r);padding:12px;margin-bottom:12px}
+.scroll{max-height:210px;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.cases{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.card{background:var(--soft);border-radius:10px;padding:8px 6px;text-align:center;min-width:0}
+.case{cursor:pointer;padding:14px 8px;border:1px solid transparent}
+.case:hover{border-color:var(--k)}
+.case .ico{font-size:40px;line-height:1.2}
+.case .nm{font-size:14px;font-weight:500;margin-top:4px}
+.v,.price{color:var(--gold);font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+.item{border-bottom:2px solid var(--k)}
+.item .pic{height:40px;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1}
+.item img{max-width:100%;max-height:40px;object-fit:contain}
+.item .n{font-size:11.5px;line-height:1.25;height:29px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.pick{cursor:pointer}.pick:hover{background:#343c44}
+.pick.sel{outline:2px solid var(--rust);outline-offset:-2px}
+.empty{color:var(--mute);text-align:center;padding:18px 8px;font-size:13px}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:10;padding:12px}
+.modal.on{display:flex}
+.box{background:var(--panel);border-radius:16px;width:100%;max-width:640px;padding:16px;max-height:92vh;overflow:auto}
+.roll{position:relative;overflow:hidden;background:#171b1e;border-radius:10px;margin:12px 0}
+.roll::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--rust);transform:translateX(-50%);z-index:2}
+.strip{display:flex;gap:8px;padding:8px 0;will-change:transform}
+.strip .item{flex:0 0 100px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+.sp{justify-content:space-between}
+.pool{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:12px;font-size:11px;color:var(--mute)}
+.pool span{border-bottom:2px solid var(--k);padding:2px 6px;background:var(--soft);border-radius:6px}
+.wheelwrap{position:relative;width:190px;height:190px;margin:8px auto 14px}
+.wheelwrap canvas{width:100%;height:100%;transition:transform 4.5s cubic-bezier(.12,.7,.1,1)}
+.ptr{position:absolute;left:50%;top:-8px;transform:translateX(-50%);border:8px solid transparent;border-top:15px solid var(--text);z-index:2}
+.wc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.wc .num{font-size:26px;font-weight:600}.wc small{color:var(--mute);font-size:11px}
+.center{text-align:center}
+.msg{min-height:24px;text-align:center;font-size:15px;font-weight:500;margin-top:8px}
+.msg.w{color:var(--win)}.msg.l{color:var(--lose)}
+@media(prefers-reduced-motion:reduce){.strip,.wheelwrap canvas{transition-duration:.01s!important}}
+button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+footer{text-align:center;color:var(--mute);font-size:11px;padding:10px 16px 24px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">OXAD</div>
+  <div class="bal"><b id="bal">0</b><button class="btn" id="bonus">Бонус +500</button></div>
+</header>
+<nav>
+  <button data-t="cases" class="on">Кейсы</button>
+  <button data-t="upgrade">Апгрейд</button>
+  <button data-t="inv">Инвентарь</button>
+</nav>
+
+<main>
+  <section class="tab on" id="cases"><h2>Кейсы</h2><div class="grid cases" id="caseGrid"></div></section>
+
+  <section class="tab" id="upgrade">
+    <h2>Апгрейд</h2>
+    <div class="panel">
+      <h3>1. Ваши скины — отметьте, что поставить</h3>
+      <div class="empty" id="upEmpty" hidden>Нет скинов. Откройте кейс.</div>
+      <div class="scroll"><div class="grid" id="upInv"></div></div>
+    </div>
+    <div class="panel">
+      <h3>2. Желаемый скин</h3>
+      <div class="empty" id="tEmpty">Сначала выберите скины</div>
+      <div class="scroll"><div class="grid" id="targets"></div></div>
+    </div>
+    <div class="panel center">
+      <div class="wheelwrap">
+        <div class="ptr"></div>
+        <canvas id="wheel" width="520" height="520"></canvas>
+        <div class="wc"><div class="num" id="chance">—</div><small id="upInfo"></small></div>
+      </div>
+      <button class="btn main" id="upBtn" disabled>Апгрейд</button>
+      <div class="msg" id="upMsg"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="inv">
+    <div class="row sp"><h2 style="margin:0">Инвентарь</h2><button class="btn" id="sellAll">Продать всё</button></div>
+    <p class="empty" style="padding:6px 0 10px">Нажмите на скин, чтобы продать его</p>
+    <div class="panel"><div class="empty" id="invEmpty" hidden>Пока пусто.</div><div class="scroll" style="max-height:60vh"><div class="grid" id="invGrid"></div></div></div>
+  </section>
+</main>
+
+<div class="modal" id="modal"><div class="box">
+  <div class="row sp"><h2 id="mTitle" style="margin:0"></h2><button class="btn" id="mClose">Закрыть</button></div>
+  <div class="roll"><div class="strip" id="strip"></div></div>
+  <div class="row"><button class="btn main" id="openBtn"></button></div>
+  <div class="msg" id="mMsg"></div>
+  <div class="pool" id="pool"></div>
+</div></div>
+<footer>Игровая валюта и скины виртуальные. Реальных денег и вывода нет. Фанатский проект.</footer>
+
+<script src="skins.js"></script>
+<script>
+const RC={c:'#8d9aa0',u:'#5fa8a0',r:'#5b8fd6',e:'#a56bd0',l:'#e0a53a'};
+const RN={c:'Обычный',u:'Необычный',r:'Редкий',e:'Эпический',l:'Легендарный'};
+const $=id=>document.getElementById(id),fmt=n=>Math.round(n).toLocaleString('ru-RU');
+const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
+const skin=id=>SKINS.find(s=>s.id===id);
+let S;try{S=JSON.parse(localStorage.getItem('oxad2'))}catch(e){}
+if(!S||typeof S.bal!=='number')S={bal:1000,inv:[],bonusAt:0,id:1};
+S.inv=S.inv.filter(i=>skin(i.sid));
+const save=()=>{try{localStorage.setItem('oxad2',JSON.stringify(S))}catch(e){}};
+
+function card(sk,cls='',attr=''){
+  const pic=sk.img?`<img src="${sk.img}" alt="" loading="lazy" onerror="this.outerHTML='🔫'">`:'🔫';
+  return `<div class="card item ${cls}" ${attr} style="--k:${RC[sk.rarity]}"><div class="pic">${pic}</div><div class="n">${sk.name}</div><div class="w">${sk.weapon}</div><div class="v">${fmt(sk.value)}</div></div>`;
+}
+function roll(c){
+  const rs=Object.keys(c.rar).filter(r=>SKINS.some(s=>s.rarity===r));
+  let x=Math.random()*rs.reduce((a,r)=>a+c.rar[r],0),rar=rs[0];
+  for(const r of rs){if((x-=c.rar[r])<0){rar=r;break}}
+  return pick(SKINS.filter(s=>s.rarity===rar));
+}
+
+/* ---- общее ---- */
+function renderAll(){
+  $('bal').textContent=fmt(S.bal);save();
+  $('invEmpty').hidden=S.inv.length>0;$('sellAll').disabled=!S.inv.length;
+  $('invGrid').innerHTML=S.inv.map(i=>card(skin(i.sid),'pick',`data-i="${i.id}"`)).join('');
+  $('invGrid').querySelectorAll('.item').forEach(el=>el.onclick=()=>{
+    const it=S.inv.find(i=>i.id==el.dataset.i);if(!it)return;
+    S.bal+=skin(it.sid).value;S.inv=S.inv.filter(i=>i!==it);renderAll();
+  });
+  renderUp();
+}
+$('sellAll').onclick=()=>{S.bal+=S.inv.reduce((a,i)=>a+skin(i.sid).value,0);S.inv=[];renderAll()};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button,.tab').forEach(e=>e.classList.remove('on'));
+  b.classList.add('on');$(b.dataset.t).classList.add('on');
+});
+$('bonus').onclick=()=>{if(S.bonusAt+3e5>Date.now())return;S.bal+=500;S.bonusAt=Date.now();renderAll()};
+setInterval(()=>{const l=S.bonusAt+3e5-Date.now();$('bonus').textContent=l>0?'Бонус через '+Math.ceil(l/1000)+' с':'Бонус +500'},1000);
+
+/* ---- кейсы ---- */
+$('caseGrid').innerHTML=CASES.map(c=>`<div class="card case" data-id="${c.id}" style="--k:${c.k}"><div class="ico">${c.ico}</div><div class="nm">${c.name}</div><div class="price">${fmt(c.price)}</div></div>`).join('');
+document.querySelectorAll('.case').forEach(el=>el.onclick=()=>openModal(CASES.find(c=>c.id===el.dataset.id)));
+let cur=null,busy=false;
+const updOpen=()=>{$('openBtn').disabled=busy||S.bal<cur.price};
+function openModal(c){
+  cur=c;$('mTitle').textContent=c.name;$('openBtn').textContent='Открыть за '+fmt(c.price);$('mMsg').textContent='';
+  $('strip').style.transition='none';$('strip').style.transform='none';
+  $('strip').innerHTML=Array.from({length:12},()=>card(roll(c))).join('');
+  const pool=SKINS.filter(s=>c.rar[s.rarity]);
+  $('pool').innerHTML=pool.map(s=>`<span style="--k:${RC[s.rarity]}">${s.name}</span>`).join('');
+  $('modal').classList.add('on');updOpen();
+}
+$('mClose').onclick=()=>{if(!busy)$('modal').classList.remove('on')};
+$('openBtn').onclick=()=>{
+  if(busy||S.bal<cur.price)return;busy=true;S.bal-=cur.price;$('bal').textContent=fmt(S.bal);updOpen();$('mMsg').textContent='';
+  const W=40,items=Array.from({length:50},(_,i)=>roll(cur)),win=roll(cur);items[W]=win;
+  const st=$('strip');st.style.transition='none';st.style.transform='translateX(0)';
+  st.innerHTML=items.map(s=>card(s)).join('');void st.offsetWidth;
+  const x=W*108+54+rnd(-40,40)-st.parentElement.clientWidth/2;
+  st.style.transition='transform 6s cubic-bezier(.1,.6,.1,1)';st.style.transform=`translateX(${-x}px)`;
+  setTimeout(()=>{
+    S.inv.push({id:S.id++,sid:win.id});busy=false;
+    $('mMsg').className='msg w';$('mMsg').textContent=`${win.name} — ${fmt(win.value)}`;
+    renderAll();updOpen();
+  },6100);
+};
+
+/* ---- апгрейд ---- */
+let sel=new Set(),tgt=null,spinning=false,rot=0;
+const sumSel=()=>S.inv.filter(i=>sel.has(i.id)).reduce((a,i)=>a+skin(i.sid).value,0);
+const chanceOf=(sum,t)=>Math.min(90,95*sum/t.value);
+function renderUp(){
+  sel=new Set([...sel].filter(id=>S.inv.some(i=>i.id===id)));
+  $('upEmpty').hidden=S.inv.length>0;
+  $('upInv').innerHTML=S.inv.map(i=>card(skin(i.sid),'pick'+(sel.has(i.id)?' sel':''),`data-i="${i.id}"`)).join('');
+  $('upInv').querySelectorAll('.item').forEach(el=>el.onclick=()=>{
+    if(spinning)return;const id=+el.dataset.i;sel.has(id)?sel.delete(id):sel.add(id);tgt=null;renderUp();
+  });
+  const sum=sumSel();
+  const list=sel.size?SKINS.filter(s=>s.value>sum).sort((a,b)=>a.value-b.value):[];
+  if(tgt&&!list.includes(tgt))tgt=null;
+  $('tEmpty').hidden=list.length>0;
+  $('tEmpty').textContent=sel.size?'Нет скинов дороже выбранных':'Сначала выберите скины';
+  $('targets').innerHTML=list.map(s=>card(s,'pick'+(s===tgt?' sel':''),`data-s="${s.id}"`)).join('');
+  $('targets').querySelectorAll('.item').forEach(el=>el.onclick=()=>{if(!spinning){tgt=skin(el.dataset.s);renderUp()}});
+  const ch=tgt?chanceOf(sum,tgt):0;
+  $('chance').textContent=tgt?ch.toFixed(1)+'%':'—';
+  $('upInfo').textContent=tgt?`${fmt(sum)} → ${fmt(tgt.value)}`:'';
+  $('upBtn').disabled=!tgt||spinning;
+  drawWheel(ch);
+}
+function drawWheel(ch){
+  const c=$('wheel'),x=c.getContext('2d'),m=c.width/2,r=m-30;
+  x.clearRect(0,0,c.width,c.width);x.lineWidth=36;
+  x.strokeStyle='#c9483f';x.beginPath();x.arc(m,m,r,0,Math.PI*2);x.stroke();
+  if(ch>0){x.strokeStyle='#6dbb6a';x.beginPath();x.arc(m,m,r,-Math.PI/2,-Math.PI/2+ch/100*Math.PI*2);x.stroke()}
+}
+$('upBtn').onclick=()=>{
+  if(spinning||!tgt)return;
+  const sum=sumSel(),ch=chanceOf(sum,tgt),res=Math.random()*100,win=res<ch,t=tgt;
+  S.inv=S.inv.filter(i=>!sel.has(i.id));sel.clear();tgt=null;spinning=true;
+  $('upBtn').disabled=true;$('upMsg').textContent='';$('upMsg').className='msg';
+  const T=((-res*3.6)%360+360)%360;
+  rot=rot-(rot%360)+360*6+T;
+  $('wheel').style.transform=`rotate(${rot}deg)`;
+  setTimeout(()=>{
+    spinning=false;
+    if(win){S.inv.push({id:S.id++,sid:t.id});$('upMsg').className='msg w';$('upMsg').textContent='Успех: '+t.name}
+    else{$('upMsg').className='msg l';$('upMsg').textContent='Неудача: скины потеряны'}
+    renderAll();
+  },4700);
+};
+
+renderAll();
+</script>
+</body>
+</html>
