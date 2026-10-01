@@ -17,8 +17,9 @@ header{max-width:900px;margin:0 auto;padding:16px 16px 10px;display:flex;flex-wr
 .logo{font-size:22px;font-weight:600;letter-spacing:.08em;background:linear-gradient(90deg,var(--rust),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .bal{display:flex;gap:8px;align-items:center}
 .chip{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 8px}
-.coin{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe29a,var(--gold) 55%,#b9852a)}
+.cn{flex:none;display:inline-block;vertical-align:-3px;filter:drop-shadow(0 1px 2px #0008)}
 .chip b{font-size:16px;font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
+.btn svg{vertical-align:-3px;margin:0 2px}
 .btn{background:var(--soft);border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px;transition:.15s}
 .btn:hover:not(:disabled){border-color:var(--rust);background:#323b44}
 .btn.main{background:linear-gradient(180deg,var(--rust),var(--rust2));border:0;font-weight:500;font-size:15px;padding:12px 34px;box-shadow:0 6px 18px #e0713f44}
@@ -41,7 +42,7 @@ h3{font-size:13px;font-weight:500;color:var(--mute);margin-bottom:8px}
 .case:hover{transform:translateY(-3px);border-color:var(--k);box-shadow:0 10px 26px color-mix(in srgb,var(--k) 25%,transparent)}
 .case .ico{font-size:52px;line-height:1.2;filter:drop-shadow(0 6px 10px #0008)}
 .case .nm{font-size:14px;font-weight:500;margin:6px 0 2px}
-.v,.price{color:var(--gold);font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+.v,.price{color:var(--gold);font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;display:flex;align-items:center;justify-content:center;gap:4px}
 .item{background:linear-gradient(180deg,color-mix(in srgb,var(--k) 18%,var(--soft)),var(--soft) 80%);border-bottom:2px solid var(--k)}
 .item .pic{height:40px;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1}
 .item img{max-width:100%;max-height:40px;object-fit:contain}
@@ -97,7 +98,7 @@ h3{font-size:13px;font-weight:500;color:var(--mute);margin-bottom:8px}
 .rvc .ph{font-size:96px}
 .rvc .nm{font-size:24px;font-weight:600;margin-top:10px}
 .rvc .sub{color:var(--k);font-size:13px;margin:2px 0 6px}
-.rvc .vv{font-size:20px;font-weight:600;color:var(--gold);margin-bottom:18px}
+.rvc .vv{font-size:20px;font-weight:600;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:6px}
 #fx{position:fixed;inset:0;z-index:30;pointer-events:none}
 @media(prefers-reduced-motion:reduce){.strip,.wheelwrap canvas{transition-duration:.01s!important}.rays,.rvc,.wheelwrap.win,.rvc .pic::before{animation:none}}
 button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
@@ -105,9 +106,11 @@ footer{text-align:center;color:var(--mute);font-size:11px;padding:10px 16px 24px
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".5" stop-color="#e3a93c"/><stop offset="1" stop-color="#9c6a1c"/></linearGradient></defs>
+<symbol id="coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11.4" fill="url(#cg)"/><circle cx="12" cy="12" r="9" fill="#14171a"/><circle cx="12" cy="12" r="9" fill="none" stroke="#e3a93c" stroke-width=".6"/><path d="M12.2 4.6c.6 2.5 4.2 4.4 4.2 8.2a4.4 4.4 0 0 1-8.8 0c0-1.5.7-2.7 1.5-3.5.1 1.2.7 1.9 1.5 2.2-.3-2.2.4-4.2 1.6-6.9z" fill="url(#cg)"/><path d="M12 12.4c1 1.1 1.8 1.9 1.8 2.9a1.8 1.8 0 0 1-3.6 0c0-1 .8-1.8 1.8-2.9z" fill="#14171a"/></symbol></svg>
 <header>
   <div class="logo">OXAD</div>
-  <div class="bal"><div class="chip"><span class="coin"></span><b id="bal">0</b></div><button class="btn" id="bonus">Бонус +500</button></div>
+  <div class="bal"><div class="chip"><svg class="cn" width="22" height="22"><use href="#coin"/></svg><b id="bal">0</b></div><button class="btn" id="bonus">Бонус +20</button></div>
 </header>
 <nav>
   <button data-t="cases" class="on">Кейсы</button>
@@ -178,15 +181,16 @@ const RN={c:'Обычный',u:'Необычный',r:'Редкий',e:'Эпич
 const $=id=>document.getElementById(id),fmt=n=>Math.round(n).toLocaleString('ru-RU');
 const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
 const skin=id=>SKINS.find(s=>s.id===id);
-let S;try{S=JSON.parse(localStorage.getItem('oxad2'))}catch(e){}
-if(!S||typeof S.bal!=='number')S={bal:1000,inv:[],bonusAt:0,id:1};
+const coin=(z=14)=>`<svg class="cn" width="${z}" height="${z}"><use href="#coin"/></svg>`;
+let S;try{S=JSON.parse(localStorage.getItem('oxad3'))}catch(e){}
+if(!S||typeof S.bal!=='number')S={bal:100,inv:[],bonusAt:0,id:1};
 S.inv=S.inv.filter(i=>skin(i.sid));
-const save=()=>{try{localStorage.setItem('oxad2',JSON.stringify(S))}catch(e){}};
+const save=()=>{try{localStorage.setItem('oxad3',JSON.stringify(S))}catch(e){}};
 
 function card(sk,cls='',attr=''){
   const ic=sk.ico||'🔫';
   const pic=sk.img?`<img src="${sk.img}" alt="" loading="lazy" onerror="this.outerHTML='${ic}'">`:ic;
-  return `<div class="card item ${cls}${sk.rarity==='l'?' leg':''}" ${attr} style="--k:${RC[sk.rarity]}"><div class="pic">${pic}</div><div class="n">${sk.name}</div><div class="v">${fmt(sk.value)}</div></div>`;
+  return `<div class="card item ${cls}${sk.rarity==='l'?' leg':''}" ${attr} style="--k:${RC[sk.rarity]}"><div class="pic">${pic}</div><div class="n">${sk.name}</div><div class="v">${coin(12)}${fmt(sk.value)}</div></div>`;
 }
 const poolOf=c=>SKINS.filter(s=>!c.weapons||c.weapons.includes(s.weapon));
 function roll(c){
@@ -215,8 +219,8 @@ function reveal(title,sk,itemId){
   $('rvPic').innerHTML=sk.img?`<img src="${sk.img}" alt="" onerror="this.outerHTML='<div class=ph>${ic}</div>'">`:`<div class="ph">${ic}</div>`;
   $('rvN').textContent=sk.name;
   $('rvS').textContent=RN[sk.rarity]+(sk.collection?' · '+sk.collection:'');
-  $('rvV').textContent=fmt(sk.value);
-  $('rvSell').textContent='Продать за '+fmt(sk.value);
+  $('rvV').innerHTML=coin(20)+fmt(sk.value);
+  $('rvSell').innerHTML='Продать за '+coin(14)+fmt(sk.value);
   $('rvSell').onclick=()=>{
     const it=S.inv.find(i=>i.id===itemId);
     if(it){S.bal+=sk.value;S.inv=S.inv.filter(i=>i!==it);renderAll();if(cur)updOpen()}
@@ -243,16 +247,16 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('nav button,.tab').forEach(e=>e.classList.remove('on'));
   b.classList.add('on');$(b.dataset.t).classList.add('on');
 });
-$('bonus').onclick=()=>{if(S.bonusAt+3e5>Date.now())return;S.bal+=500;S.bonusAt=Date.now();renderAll()};
-setInterval(()=>{const l=S.bonusAt+3e5-Date.now();$('bonus').textContent=l>0?'Бонус через '+Math.ceil(l/1000)+' с':'Бонус +500'},1000);
+$('bonus').onclick=()=>{if(S.bonusAt+3e5>Date.now())return;S.bal+=20;S.bonusAt=Date.now();renderAll()};
+setInterval(()=>{const l=S.bonusAt+3e5-Date.now();$('bonus').textContent=l>0?'Бонус через '+Math.ceil(l/1000)+' с':'Бонус +20'},1000);
 
 /* ---- кейсы ---- */
-$('caseGrid').innerHTML=CASES.map(c=>`<div class="card case" data-id="${c.id}" style="--k:${c.k}"><div class="ico">${c.ico}</div><div class="nm">${c.name}</div><div class="price">${fmt(c.price)}</div></div>`).join('');
+$('caseGrid').innerHTML=CASES.map(c=>`<div class="card case" data-id="${c.id}" style="--k:${c.k}"><div class="ico">${c.ico}</div><div class="nm">${c.name}</div><div class="price">${coin(14)}${fmt(c.price)}</div></div>`).join('');
 document.querySelectorAll('.case').forEach(el=>el.onclick=()=>openModal(CASES.find(c=>c.id===el.dataset.id)));
 let cur=null,busy=false;
 const updOpen=()=>{$('openBtn').disabled=busy||S.bal<cur.price};
 function openModal(c){
-  cur=c;$('mTitle').textContent=c.name;$('openBtn').textContent='Открыть за '+fmt(c.price);$('mMsg').textContent='';
+  cur=c;$('mTitle').textContent=c.name;$('openBtn').innerHTML='Открыть за '+coin(16)+fmt(c.price);$('mMsg').textContent='';
   $('strip').style.transition='none';$('strip').style.transform='none';
   $('strip').innerHTML=Array.from({length:12},()=>card(roll(c))).join('');
   $('pool').innerHTML=poolOf(c).filter(s=>c.rar[s.rarity]).map(s=>`<span style="--k:${RC[s.rarity]}">${s.name}</span>`).join('');
