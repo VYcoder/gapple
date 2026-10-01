@@ -176,14 +176,16 @@ S.inv=S.inv.filter(i=>skin(i.sid));
 const save=()=>{try{localStorage.setItem('oxad2',JSON.stringify(S))}catch(e){}};
 
 function card(sk,cls='',attr=''){
-  const pic=sk.img?`<img src="${sk.img}" alt="" loading="lazy" onerror="this.outerHTML='🔫'">`:'🔫';
+  const ic=sk.ico||'🔫';
+  const pic=sk.img?`<img src="${sk.img}" alt="" loading="lazy" onerror="this.outerHTML='${ic}'">`:ic;
   return `<div class="card item ${cls}" ${attr} style="--k:${RC[sk.rarity]}"><div class="pic">${pic}</div><div class="n">${sk.name}</div><div class="v">${fmt(sk.value)}</div></div>`;
 }
+const poolOf=c=>SKINS.filter(s=>!c.weapons||c.weapons.includes(s.weapon));
 function roll(c){
-  const rs=Object.keys(c.rar).filter(r=>SKINS.some(s=>s.rarity===r));
+  const P=poolOf(c),rs=Object.keys(c.rar).filter(r=>P.some(s=>s.rarity===r));
   let x=Math.random()*rs.reduce((a,r)=>a+c.rar[r],0),rar=rs[0];
   for(const r of rs){if((x-=c.rar[r])<0){rar=r;break}}
-  return pick(SKINS.filter(s=>s.rarity===rar));
+  return pick(P.filter(s=>s.rarity===rar));
 }
 
 /* ---- эффект выигрыша ---- */
@@ -201,7 +203,8 @@ const closeRv=()=>$('rv').classList.remove('on');
 function reveal(title,sk,itemId){
   $('rv').style.setProperty('--k',RC[sk.rarity]);
   $('rvT').textContent=title;
-  $('rvPic').innerHTML=sk.img?`<img src="${sk.img}" alt="" onerror="this.outerHTML='<div class=ph>🔫</div>'">`:'<div class="ph">🔫</div>';
+  const ic=sk.ico||'🔫';
+  $('rvPic').innerHTML=sk.img?`<img src="${sk.img}" alt="" onerror="this.outerHTML='<div class=ph>${ic}</div>'">`:`<div class="ph">${ic}</div>`;
   $('rvN').textContent=sk.name;
   $('rvS').textContent=RN[sk.rarity]+(sk.collection?' · '+sk.collection:'');
   $('rvV').textContent=fmt(sk.value);
@@ -244,7 +247,7 @@ function openModal(c){
   cur=c;$('mTitle').textContent=c.name;$('openBtn').textContent='Открыть за '+fmt(c.price);$('mMsg').textContent='';
   $('strip').style.transition='none';$('strip').style.transform='none';
   $('strip').innerHTML=Array.from({length:12},()=>card(roll(c))).join('');
-  $('pool').innerHTML=SKINS.filter(s=>c.rar[s.rarity]).map(s=>`<span style="--k:${RC[s.rarity]}">${s.name}</span>`).join('');
+  $('pool').innerHTML=poolOf(c).filter(s=>c.rar[s.rarity]).map(s=>`<span style="--k:${RC[s.rarity]}">${s.name}</span>`).join('');
   $('modal').classList.add('on');updOpen();
 }
 $('mClose').onclick=()=>{if(!busy)$('modal').classList.remove('on')};
