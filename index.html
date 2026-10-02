@@ -159,6 +159,11 @@ h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#ffffff1
 .mi .n{font-size:12px;margin-top:4px;min-height:30px;display:flex;align-items:center;justify-content:center}
 .mi .v{display:flex;align-items:center;justify-content:center;gap:4px;color:var(--gold);font-weight:500;font-size:13px}
 @media(min-width:560px){.mi{flex-basis:calc(33.33% - 7px)}}
+.case.soon{cursor:default;opacity:.55}
+.case.soon:hover{transform:none;border-color:var(--line);box-shadow:none}
+.case.soon .art{display:flex;align-items:center;justify-content:center}
+.case.soon .art::after{display:none}
+.case.soon .art span{font-size:13px;color:var(--mute);border:1px dashed #ffffff30;border-radius:999px;padding:5px 14px}
 </style>
 </head>
 <body>
@@ -265,7 +270,7 @@ function odds(c){
   return P.map(s=>({s,p:c.rar[s.rarity]/t*wt(c,s)/g[s.rarity]}));
 }
 function roll(c){
-  const L=odds(c);let x=Math.random();
+  const L=odds(c);if(!L.length)return SKINS[0];let x=Math.random();
   for(const o of L){if((x-=o.p)<0)return o.s}
   return L[L.length-1].s;
 }
@@ -345,9 +350,10 @@ setInterval(()=>{const l=S.bonusAt+3e5-Date.now();$('bonus').textContent=l>0?'Б
 $('caseGrid').innerHTML=CASES.map(c=>{
   const top=poolOf(c).filter(s=>c.rar[s.rarity]&&s.img).sort((a,b)=>b.value-a.value).slice(0,3);
   const art=top.map((s,i)=>`<img class="p p${i}" src="${s.img}" alt="" decoding="async" onerror="this.style.display='none'">`).join('');
-  return `<div class="card case" data-id="${c.id}" style="--k:${c.k}"><div class="art">${art}</div><div class="nm">${c.name}</div><div class="price">${coin(14)}${fmt(c.price)}</div></div>`;
+  const soon=!poolOf(c).some(s=>c.rar[s.rarity]);
+  return `<div class="card case${soon?' soon':''}" data-id="${c.id}" style="--k:${c.k}"><div class="art">${soon?'<span>Скоро</span>':art}</div><div class="nm">${c.name}</div><div class="price">${coin(14)}${fmt(c.price)}</div></div>`;
 }).join('');
-document.querySelectorAll('.case').forEach(el=>el.onclick=()=>openModal(CASES.find(c=>c.id===el.dataset.id)));
+document.querySelectorAll('.case:not(.soon)').forEach(el=>el.onclick=()=>openModal(CASES.find(c=>c.id===el.dataset.id)));
 let cur=null,busy=false;
 let cnt=1;
 const updOpen=()=>{
