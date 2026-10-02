@@ -25,9 +25,12 @@ const SKINS=[
  {id:'copter',weapon:'Коптер',name:'Коптер',rarity:'l',collection:'',img:'copter.webp',ico:'🚁',value:600},
  {id:'turret',weapon:'Турель',name:'Турель',rarity:'l',collection:'',img:'turret.webp',ico:'🗼',value:350},
 
- // --- Броня ---
- // Шаблон: {id:'...',weapon:'Броня',name:'...',rarity:'c',collection:'...',img:'armor_....webp',value:0},
- {id:'armor_test',weapon:'Броня',name:'Тестовая броня',rarity:'r',collection:'Field Kit',img:'armor_test.webp',value:300}
+ // --- Броня: комплект «Frozen» ---
+ // Формат: {id:'...',weapon:'Броня',name:'...',rarity:'c/u/r/e/l',collection:'...',img:'armor_....webp',value:0},
+ {id:'ice_boots', weapon:'Броня',name:'Снежные ботинки',   rarity:'l',collection:'Frozen',img:'armor_ice_boots.webp', value:900},
+ {id:'ice_pants', weapon:'Броня',name:'Снежные поножи',    rarity:'l',collection:'Frozen',img:'armor_ice_pants.webp', value:1200},
+ {id:'ice_helmet',weapon:'Броня',name:'Ледяной шлем',      rarity:'l',collection:'Frozen',img:'armor_ice_helmet.webp',value:1500},
+ {id:'ice_body',  weapon:'Броня',name:'Ледяной панцирь',   rarity:'l',collection:'Frozen',img:'armor_ice_body.webp',  value:2200}
 ];
 
 /* weapons — из каких предметов кейс берёт скины (нет поля = из всех)
@@ -39,6 +42,6 @@ const CASES=[
   cw:{shepot:4,groza:3,unstoppable:3,spector:3,kraken:2,digital:2,flame:1.5,rainbow:1.5,strike:1.5,ice:1,memento:.8}},
  {id:'premium',name:'Premium',price:550,ico:'💎',k:'#a56bd0',weapons:['Багги','Каменоломня','Коптер','Турель'],rar:{l:1},
   cw:{buggy:40,turret:30,copter:20,quarry:10}},
- {id:'armor',name:'Броня',price:450,ico:'🛡️',k:'#5b8fd6',weapons:['Броня'],rar:{c:60,u:25,r:12,e:2.5,l:0.5},
-  cw:{armor_test:1}}
+ {id:'armor',name:'Броня',price:1200,ico:'🛡️',k:'#7cc4e8',weapons:['Броня'],rar:{l:1},
+  cw:{ice_boots:4,ice_pants:3,ice_helmet:2,ice_body:1}}
 ];
