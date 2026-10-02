@@ -23,7 +23,11 @@ const SKINS=[
  {id:'buggy',weapon:'Багги',name:'Багги',rarity:'l',collection:'',img:'buggy.webp',ico:'🏎️',value:280},
  {id:'quarry',weapon:'Каменоломня',name:'Каменоломня',rarity:'l',collection:'',img:'quarry.webp',ico:'🪨',value:1600},
  {id:'copter',weapon:'Коптер',name:'Коптер',rarity:'l',collection:'',img:'copter.webp',ico:'🚁',value:600},
- {id:'turret',weapon:'Турель',name:'Турель',rarity:'l',collection:'',img:'turret.webp',ico:'🗼',value:350}
+ {id:'turret',weapon:'Турель',name:'Турель',rarity:'l',collection:'',img:'turret.webp',ico:'🗼',value:350},
+
+ // --- Броня ---
+ // Шаблон: {id:'...',weapon:'Броня',name:'...',rarity:'c',collection:'...',img:'armor_....webp',value:0},
+ {id:'armor_test',weapon:'Броня',name:'Тестовая броня',rarity:'r',collection:'Field Kit',img:'armor_test.webp',value:300}
 ];
 
 /* weapons — из каких предметов кейс берёт скины (нет поля = из всех)
@@ -34,5 +38,7 @@ const CASES=[
  {id:'ak',name:'AK-47',price:710,ico:'🔫',k:'#e0a53a',weapons:['Штурмовая винтовка'],rar:{l:1},
   cw:{shepot:4,groza:3,unstoppable:3,spector:3,kraken:2,digital:2,flame:1.5,rainbow:1.5,strike:1.5,ice:1,memento:.8}},
  {id:'premium',name:'Premium',price:550,ico:'💎',k:'#a56bd0',weapons:['Багги','Каменоломня','Коптер','Турель'],rar:{l:1},
-  cw:{buggy:40,turret:30,copter:20,quarry:10}}
+  cw:{buggy:40,turret:30,copter:20,quarry:10}},
+ {id:'armor',name:'Броня',price:450,ico:'🛡️',k:'#5b8fd6',weapons:['Броня'],rar:{c:60,u:25,r:12,e:2.5,l:0.5},
+  cw:{armor_test:1}}
 ];
