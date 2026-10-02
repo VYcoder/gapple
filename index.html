@@ -139,6 +139,26 @@ h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#ffffff1
 .wc{z-index:2}
 .btn.main{position:relative;overflow:hidden}
 .btn.main:active:not(:disabled){transform:scale(.97)}
+
+/* ===== несколько кейсов ===== */
+.cnt{display:flex;gap:6px;justify-content:center;align-items:center;margin:4px 0 14px}
+.cnt::before{content:"Открыть:";color:var(--mute);font-size:13px;margin-right:6px}
+.cnt button{width:42px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--soft);cursor:pointer;font-weight:500;font-size:15px}
+.cnt button.on{background:linear-gradient(180deg,var(--rust),var(--rust2));border-color:transparent;box-shadow:0 4px 12px #e0713f44}
+.cnt button:disabled{opacity:.35;cursor:not-allowed}
+.roll{margin:8px 0}
+.strip.sm .item{flex:0 0 72px;padding:5px 4px}
+.strip.sm .item .n,.strip.sm .item .v{display:none}
+.strip.sm .item .pic{height:46px}
+.rvm{position:relative;z-index:2;text-align:center;max-width:560px;width:100%;animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+.rvm .t{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+#rv:not(.multi) .rvm,#rv.multi .rvc{display:none}
+.mg{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:14px}
+.mi{flex:0 0 calc(50% - 5px);background:linear-gradient(180deg,color-mix(in srgb,var(--k) 20%,var(--soft)),var(--soft) 85%);border-bottom:2px solid var(--k);border-radius:12px;padding:10px 8px}
+.mi img{width:100%;height:62px;object-fit:contain}
+.mi .n{font-size:12px;margin-top:4px;min-height:30px;display:flex;align-items:center;justify-content:center}
+.mi .v{display:flex;align-items:center;justify-content:center;gap:4px;color:var(--gold);font-weight:500;font-size:13px}
+@media(min-width:560px){.mi{flex-basis:calc(33.33% - 7px)}}
 </style>
 </head>
 <body>
@@ -193,13 +213,20 @@ h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#ffffff1
 
 <div class="modal" id="modal"><div class="box">
   <div class="row sp"><h2 id="mTitle" style="margin:0"></h2><button class="btn" id="mClose">Закрыть</button></div>
-  <div class="roll"><div class="strip" id="strip"></div></div>
+  <div id="rolls"></div>
+  <div class="cnt" id="cnt"></div>
   <div class="row"><button class="btn main" id="openBtn"></button></div>
   <div class="msg" id="mMsg"></div>
   <div class="pool" id="pool"></div>
 </div></div>
 
 <div id="rv"><div class="rays"></div><div id="twk"></div>
+  <div class="rvm">
+    <div class="t">Вам выпало</div>
+    <div class="mg" id="mg"></div>
+    <div class="vv" id="mv"></div>
+    <div class="row"><button class="btn main" id="mOk">Забрать всё</button><button class="btn" id="mSell"></button></div>
+  </div>
   <div class="rvc">
     <div class="t" id="rvT"></div>
     <div class="pic" id="rvPic"></div>
@@ -271,10 +298,26 @@ function reveal(title,sk,itemId){
     if(it){S.bal+=sk.value;S.inv=S.inv.filter(i=>i!==it);renderAll();if(cur)updOpen()}
     closeRv();
   };
-  const el=$('rv');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');document.body.classList.add('rvo');
+  const el=$('rv');el.classList.remove('multi','on');void el.offsetWidth;el.classList.add('on');document.body.classList.add('rvo');
   setTimeout(()=>{if(el.classList.contains('on'))confetti(RC[sk.rarity])},420);
 }
-$('rvOk').onclick=closeRv;
+$('rvOk').onclick=closeRv;$('mOk').onclick=closeRv;
+function revealMulti(list){
+  const el=$('rv'),rk=o=>'curel'.indexOf(o.sk.rarity),best=list.reduce((a,b)=>rk(b)>rk(a)?b:a),tot=list.reduce((a,o)=>a+o.sk.value,0);
+  el.style.setProperty('--k',RC[best.sk.rarity]);
+  el.classList.toggle('leg',list.some(o=>o.sk.rarity==='l'));
+  $('mg').innerHTML=list.map(o=>`<div class="mi" style="--k:${RC[o.sk.rarity]}">${o.sk.img?`<img src="${o.sk.img}" alt="" decoding="async" onerror="this.remove()">`:''}<div class="n">${o.sk.name}</div><div class="v">${coin(12)}${fmt(o.sk.value)}</div></div>`).join('');
+  $('mv').innerHTML='Всего '+coin(20)+fmt(tot);
+  $('mSell').innerHTML='Продать всё за '+coin(14)+fmt(tot);
+  $('mSell').onclick=()=>{
+    const ids=new Set(list.map(o=>o.id));let g=0;
+    S.inv=S.inv.filter(i=>{if(ids.has(i.id)){g+=skin(i.sid).value;return false}return true});
+    S.bal+=g;renderAll();if(cur)updOpen();closeRv();
+  };
+  el.classList.add('multi');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');
+  document.body.classList.add('rvo');
+  setTimeout(()=>{if(el.classList.contains('on'))confetti(RC[best.sk.rarity])},420);
+}
 $('twk').innerHTML=Array.from({length:12},(_,i)=>`<span class="tw" style="left:${rnd(8,92).toFixed(0)}%;top:${rnd(8,88).toFixed(0)}%;animation-delay:${(i*.2).toFixed(1)}s"></span>`).join('');
 
 /* ---- общее ---- */
@@ -306,24 +349,47 @@ $('caseGrid').innerHTML=CASES.map(c=>{
 }).join('');
 document.querySelectorAll('.case').forEach(el=>el.onclick=()=>openModal(CASES.find(c=>c.id===el.dataset.id)));
 let cur=null,busy=false;
-const updOpen=()=>{$('openBtn').disabled=busy||S.bal<cur.price};
+let cnt=1;
+const updOpen=()=>{
+  const aff=Math.max(1,Math.min(5,Math.floor(S.bal/cur.price)));
+  if(!busy&&cnt>aff)cnt=aff;
+  $('cnt').innerHTML=[1,2,3,4,5].map(n=>`<button class="${n===cnt?'on':''}" data-n="${n}" ${busy||S.bal<cur.price*n?'disabled':''}>${n}</button>`).join('');
+  $('openBtn').innerHTML='Открыть'+(cnt>1?' ×'+cnt:'')+' за '+coin(16)+fmt(cur.price*cnt);
+  $('openBtn').disabled=busy||S.bal<cur.price*cnt;
+};
+function drawRolls(){
+  $('rolls').innerHTML=Array.from({length:cnt},()=>`<div class="roll"><div class="strip${cnt>1?' sm':''}">${Array.from({length:cnt>1?10:12},()=>card(roll(cur))).join('')}</div></div>`).join('');
+}
+$('cnt').onclick=e=>{const b=e.target.closest('button');if(!b||busy||b.disabled)return;cnt=+b.dataset.n;drawRolls();updOpen()};
 function openModal(c){
-  cur=c;$('mTitle').textContent=c.name;$('openBtn').innerHTML='Открыть за '+coin(16)+fmt(c.price);$('mMsg').textContent='';
-  $('strip').style.transition='none';$('strip').style.transform='none';
-  $('strip').innerHTML=Array.from({length:12},()=>card(roll(c))).join('');
+  cur=c;$('mTitle').textContent=c.name;$('mMsg').textContent='';
   $('pool').innerHTML=odds(c).sort((a,b)=>b.p-a.p).map(o=>`<span style="--k:${RC[o.s.rarity]}">${o.s.name} · ${(o.p*100).toFixed(o.p<.1?1:0)}%</span>`).join('');
-  $('modal').classList.add('on');updOpen();
+  $('modal').classList.add('on');updOpen();drawRolls();
 }
 $('mClose').onclick=()=>{if(!busy)$('modal').classList.remove('on')};
 $('openBtn').onclick=()=>{
-  if(busy||S.bal<cur.price)return;busy=true;S.bal-=cur.price;$('bal').textContent=fmt(S.bal);updOpen();$('mMsg').textContent='';
-  const W=40,items=Array.from({length:50},()=>roll(cur)),win=roll(cur);items[W]=win;
-  const id=S.id++;S.inv.push({id,sid:win.id});save();
-  const st=$('strip');st.style.transition='none';st.style.transform='translateX(0)';
-  st.innerHTML=items.map(s=>card(s)).join('');void st.offsetWidth;
-  const x=W*108+54+rnd(-40,40)-st.parentElement.clientWidth/2;
-  st.style.transition='transform 6s cubic-bezier(.1,.6,.1,1)';st.style.transform=`translateX(${-x}px)`;
-  onEnd(st,6000,()=>{busy=false;reveal('Вам выпало',win,id);renderAll();updOpen()});
+  const n=cnt,total=cur.price*n;
+  if(busy||S.bal<total)return;
+  busy=true;S.bal-=total;$('bal').textContent=fmt(S.bal);updOpen();$('mMsg').textContent='';
+  const sm=n>1,W=sm?26:40,N=sm?32:50,cell=sm?80:108,dur=sm?5:6,wins=[];
+  $('rolls').innerHTML=Array.from({length:n},()=>`<div class="roll"><div class="strip${sm?' sm':''}"></div></div>`).join('');
+  const strips=[...document.querySelectorAll('#rolls .strip')];
+  strips.forEach(st=>{
+    const items=Array.from({length:N},()=>roll(cur)),win=roll(cur);items[W]=win;
+    const id=S.id++;S.inv.push({id,sid:win.id});wins.push({sk:win,id});
+    st.innerHTML=items.map(k=>card(k)).join('');
+  });
+  save();
+  void document.body.offsetWidth;
+  strips.forEach(st=>{
+    const x=W*cell+cell/2+rnd(-cell*.37,cell*.37)-st.parentElement.clientWidth/2;
+    st.style.transition=`transform ${dur}s cubic-bezier(.1,.6,.1,1)`;st.style.transform=`translateX(${-x}px)`;
+  });
+  onEnd(strips[0],dur*1000,()=>{
+    busy=false;
+    if(n>1)revealMulti(wins);else reveal('Вам выпало',wins[0].sk,wins[0].id);
+    renderAll();updOpen();
+  });
 };
 
 /* ---- апгрейд ---- */
