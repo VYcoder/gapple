@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OXAD — симулятор кейсов Oxide</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23e3a93c'/%3E%3Ccircle cx='50' cy='50' r='36' fill='%2314171a'/%3E%3Cpath d='M52 20c3 12 20 21 20 40a20 20 0 0 1-40 0c0-8 4-14 8-18 1 6 4 9 8 11-2-12 2-22 4-33z' fill='%23e3a93c'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 :root{--bg:#14181c;--panel:#21282f;--soft:#2a323a;--line:#ffffff12;--text:#ece6d9;--mute:#8f9aa3;--rust:#e0713f;--rust2:#c4472b;--gold:#f0be5c;--win:#6ed08a;--lose:#e0675c;--r:14px}
@@ -17,7 +17,7 @@ header{max-width:900px;margin:0 auto;padding:16px 16px 10px;display:flex;flex-wr
 .logo{font-size:22px;font-weight:600;letter-spacing:.08em;background:linear-gradient(90deg,var(--rust),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .bal{display:flex;gap:8px;align-items:center}
 .chip{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 8px}
-.cn{flex:none;display:inline-block;vertical-align:-3px;filter:drop-shadow(0 1px 2px #0008)}
+.cn{flex:none;display:inline-block;vertical-align:-3px}
 .chip b{font-size:16px;font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
 .btn svg{vertical-align:-3px;margin:0 2px}
 .btn{background:var(--soft);border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px;transition:.15s}
@@ -53,7 +53,7 @@ h3{font-size:13px;font-weight:500;color:var(--mute);margin-bottom:8px}
 .up{display:grid;gap:12px}
 @media(min-width:760px){.up{grid-template-columns:1fr 290px;align-items:start}}
 .up>*{min-width:0}
-.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:10;padding:12px;backdrop-filter:blur(3px)}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:10;padding:12px}
 .modal.on{display:flex}
 .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:640px;padding:16px;max-height:92vh;overflow:auto}
 .roll{position:relative;overflow:hidden;background:#101417;border-radius:12px;margin:12px 0}
@@ -68,9 +68,8 @@ h3{font-size:13px;font-weight:500;color:var(--mute);margin-bottom:8px}
 .wheelpanel{text-align:center;background:radial-gradient(circle at 50% 38%,#2d3a46,var(--panel) 70%)}
 .wheelwrap{position:relative;width:240px;height:240px;margin:14px auto 18px;border-radius:50%;box-shadow:0 0 0 6px #ffffff08,0 0 40px #0008}
 .wheelwrap canvas{width:100%;height:100%;display:block;transition:transform 5s cubic-bezier(.1,.75,.12,1)}
-.wheelwrap.win{animation:ring 1.1s ease-out 2}
+
 .wheelwrap.lose{animation:shake .45s}
-@keyframes ring{0%{box-shadow:0 0 0 6px #6ed08aaa,0 0 40px #6ed08a88}100%{box-shadow:0 0 0 46px #6ed08a00,0 0 40px #0008}}
 @keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
 .ptr{position:absolute;left:50%;top:-12px;transform:translateX(-50%);border:10px solid transparent;border-top:20px solid var(--gold);filter:drop-shadow(0 2px 6px #000a);z-index:2}
 .wc{position:absolute;inset:18%;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;background:radial-gradient(circle at 50% 30%,#2e3842,#171c20);box-shadow:inset 0 0 0 1px #ffffff10,inset 0 8px 20px #0006}
@@ -78,31 +77,68 @@ h3{font-size:13px;font-weight:500;color:var(--mute);margin-bottom:8px}
 .msg{min-height:24px;text-align:center;font-size:15px;font-weight:500;margin-top:10px}
 .msg.w{color:var(--win)}.msg.l{color:var(--lose)}
 /* показ выигрыша */
-#rv{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--k) 30%,#0b0e11),#0b0e11 75%);overflow:hidden}
+#rv{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--k) 26%,#0b0e11),#0b0e11 78%);overflow:hidden}
 #rv.on{display:flex}
-.rays{position:absolute;left:50%;top:50%;width:150vmax;height:150vmax;margin:-75vmax;background:repeating-conic-gradient(color-mix(in srgb,var(--k) 24%,transparent) 0 8deg,transparent 8deg 16deg);-webkit-mask-image:radial-gradient(circle,#000,transparent 55%);mask-image:radial-gradient(circle,#000,transparent 55%);animation:spin 40s linear infinite}
+#rv::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle at 50% 45%,transparent 0,#0b0e11e6 72%)}
+.rays{position:absolute;left:50%;top:50%;z-index:0;width:120vmax;height:120vmax;margin:-60vmax 0 0 -60vmax;background:repeating-conic-gradient(color-mix(in srgb,var(--k) 20%,transparent) 0 8deg,transparent 8deg 16deg);animation:spin 50s linear infinite;will-change:transform}
+#rv.leg .rays{background:repeating-conic-gradient(#e0a53a3a 0 8deg,transparent 8deg 16deg)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.rvc{position:relative;text-align:center;max-width:460px;width:100%;animation:pop .55s cubic-bezier(.2,1.5,.4,1)}
-@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
-.rvc .t{font-size:15px;color:var(--mute);margin-bottom:10px}
+.rvc{position:relative;z-index:2;text-align:center;max-width:460px;width:100%;animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.rvc .t{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
 .rvc .pic{position:relative;min-height:140px;display:flex;align-items:center;justify-content:center}
-.rvc .pic::before{content:"";position:absolute;inset:-35% -12%;background:radial-gradient(closest-side,color-mix(in srgb,var(--k) 70%,transparent),transparent);filter:blur(14px);animation:pulse 2.2s ease-in-out infinite}
-.rvc .pic>*{position:relative;filter:drop-shadow(0 0 18px color-mix(in srgb,var(--k) 80%,transparent))}
-#rv.leg .pic::before{inset:-55% -25%;background:radial-gradient(closest-side,#ffd36ccc,#e0a53a66 45%,transparent);animation-duration:1.6s}
-#rv.leg .pic>*{filter:drop-shadow(0 0 10px #ffd36c) drop-shadow(0 0 30px #e0a53a)}
-#rv.leg .rays{filter:brightness(1.6)}
-@keyframes pulse{50%{opacity:.55;transform:scale(1.08)}}
-.item.leg{box-shadow:0 0 14px #e0a53a40}
-.item.leg img{filter:drop-shadow(0 0 6px #e0a53acc)}
+.rvc .pic::before{content:"";position:absolute;inset:-40% -14%;background:radial-gradient(closest-side,color-mix(in srgb,var(--k) 55%,transparent),transparent);animation:pulse 2.4s ease-in-out infinite}
+#rv.leg .pic::before{background:radial-gradient(closest-side,#ffd36cc0,#e0a53a55 45%,transparent)}
+.rvc .pic::after{content:"";position:absolute;left:8%;right:8%;bottom:-16px;height:28px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--k) 60%,transparent),transparent)}
+.rvc .pic>*{position:relative;z-index:1}
+@keyframes pulse{50%{opacity:.6;transform:scale(1.06)}}
 .rvc img{width:100%;max-width:420px;max-height:40vh;object-fit:contain}
 .rvc .ph{font-size:96px}
-.rvc .nm{font-size:24px;font-weight:600;margin-top:10px}
-.rvc .sub{color:var(--k);font-size:13px;margin:2px 0 6px}
+.rvc .nm{font-size:26px;font-weight:600;margin-top:22px}
+#rv.leg .nm{background:linear-gradient(90deg,#fff1bd,#f0be5c,#fff1bd);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rvc .sub{color:var(--k);font-size:13px;margin:2px 0 8px}
 .rvc .vv{font-size:20px;font-weight:600;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:6px}
+.tw{position:absolute;z-index:1;width:6px;height:6px;border-radius:50%;background:#fff3c4;box-shadow:0 0 8px #ffd36c;opacity:0;display:none}
+#rv.leg .tw{display:block;animation:tw 2.4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
+.item.leg{box-shadow:0 0 12px #e0a53a40}
+body.rvo header,body.rvo nav,body.rvo main,body.rvo footer,body.rvo .modal{visibility:hidden}
 #fx{position:fixed;inset:0;z-index:30;pointer-events:none}
-@media(prefers-reduced-motion:reduce){.strip,.wheelwrap canvas{transition-duration:.01s!important}.rays,.rvc,.wheelwrap.win,.rvc .pic::before{animation:none}}
+@media(prefers-reduced-motion:reduce){.strip,.wheelwrap canvas{transition-duration:.01s!important}.rays,.rvc,.wheelwrap.win::after,.rvc .pic::before,.tw{animation:none}}
 button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
 footer{text-align:center;color:var(--mute);font-size:11px;padding:10px 16px 24px}
+
+/* ===== украшения ===== */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(520px 380px at 6% 14%,#e0713f18,transparent),radial-gradient(560px 420px at 96% 62%,#a56bd016,transparent)}
+header{border-bottom:1px solid #ffffff0a}
+.logo{font-size:24px;text-shadow:0 0 24px #e0713f55}
+nav button.on{background:linear-gradient(180deg,#38424b,#2d353d);box-shadow:0 0 0 1px #ffffff14,0 4px 12px #0006}
+h2{display:flex;align-items:center;gap:10px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#ffffff1a,transparent);margin-left:4px}
+.row.sp h2::after,#mTitle::after{display:none}
+.panel{box-shadow:inset 0 1px 0 #ffffff0d,0 8px 24px #0004}
+.tab.on{animation:fade .3s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.case{padding:12px 10px 14px;position:relative;overflow:hidden}
+.case::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--k),transparent)}
+.art{position:relative;height:92px;margin-bottom:8px}
+.art::after{content:"";position:absolute;left:12%;right:12%;bottom:-6px;height:20px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--k) 50%,transparent),transparent)}
+.art .p{position:absolute;left:50%;bottom:6px;width:72%;max-height:80px;object-fit:contain;transform-origin:50% 100%}
+.art .p0{transform:translateX(-50%);z-index:3}
+.art .p1{transform:translateX(-84%) rotate(-11deg) scale(.8);z-index:2;opacity:.92}
+.art .p2{transform:translateX(-16%) rotate(11deg) scale(.8);z-index:1;opacity:.92}
+.case .nm{font-size:15px;margin:2px 0 4px}
+.case .price{display:inline-flex;background:#00000033;border-radius:999px;padding:3px 12px 3px 8px;font-size:14px}
+.roll::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#101417 0,transparent 16%,transparent 84%,#101417 100%)}
+.roll{box-shadow:inset 0 0 0 1px #ffffff0d}
+.wheelwrap::before{content:"";position:absolute;inset:-10px;border-radius:50%;background:conic-gradient(from 20deg,#e0a53a66,#ffffff10 25%,#e0a53a66 50%,#ffffff10 75%,#e0a53a66);-webkit-mask:radial-gradient(circle,transparent calc(100% - 9px),#000 calc(100% - 8px));mask:radial-gradient(circle,transparent calc(100% - 9px),#000 calc(100% - 8px))}
+.wheelwrap::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid var(--win);opacity:0;pointer-events:none}
+.wheelwrap.win::after{animation:ringp 1.1s ease-out 2}
+@keyframes ringp{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(1.4)}}
+.wheelwrap canvas{position:relative;z-index:1}
+.wc{z-index:2}
+.btn.main{position:relative;overflow:hidden}
+.btn.main:active:not(:disabled){transform:scale(.97)}
 </style>
 </head>
 <body>
@@ -150,7 +186,7 @@ footer{text-align:center;color:var(--mute);font-size:11px;padding:10px 16px 24px
 
   <section class="tab" id="inv">
     <div class="row sp"><h2 style="margin:0">Инвентарь</h2><button class="btn" id="sellAll">Продать всё</button></div>
-    <p class="empty" style="padding:6px 0 10px">Нажмите на скин, чтобы продать его</p>
+    <p class="empty" id="invHint" style="padding:6px 0 10px"></p>
     <div class="panel"><div class="empty" id="invEmpty" hidden>Пока пусто.</div><div class="scroll" style="max-height:60vh"><div class="grid" id="invGrid"></div></div></div>
   </section>
 </main>
@@ -163,7 +199,7 @@ footer{text-align:center;color:var(--mute);font-size:11px;padding:10px 16px 24px
   <div class="pool" id="pool"></div>
 </div></div>
 
-<div id="rv"><div class="rays"></div>
+<div id="rv"><div class="rays"></div><div id="twk"></div>
   <div class="rvc">
     <div class="t" id="rvT"></div>
     <div class="pic" id="rvPic"></div>
@@ -181,6 +217,7 @@ const RN={c:'Обычный',u:'Необычный',r:'Редкий',e:'Эпич
 const $=id=>document.getElementById(id),fmt=n=>Math.round(n).toLocaleString('ru-RU');
 const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
 const skin=id=>SKINS.find(s=>s.id===id);
+function onEnd(el,ms,fn){let d=0;const h=e=>{if(e.target===el&&e.propertyName==='transform')f()};const f=()=>{if(d)return;d=1;el.removeEventListener('transitionend',h);fn()};el.addEventListener('transitionend',h);setTimeout(f,ms+120)}
 const coin=(z=14)=>`<svg class="cn" width="${z}" height="${z}"><use href="#coin"/></svg>`;
 let S;try{S=JSON.parse(localStorage.getItem('oxad4'))}catch(e){}
 if(!S||typeof S.bal!=='number')S={bal:1500,inv:[],bonusAt:0,id:1};
@@ -188,8 +225,8 @@ S.inv=S.inv.filter(i=>skin(i.sid));
 const save=()=>{try{localStorage.setItem('oxad4',JSON.stringify(S))}catch(e){}};
 
 function card(sk,cls='',attr=''){
-  const ic=sk.ico||'🔫';
-  const pic=sk.img?`<img src="${sk.img}" alt="" loading="lazy" onerror="this.outerHTML='${ic}'">`:ic;
+  const ic='';
+  const pic=sk.img?`<img src="${sk.img}" alt="" decoding="async" onerror="this.outerHTML='${ic}'">`:ic;
   return `<div class="card item ${cls}${sk.rarity==='l'?' leg':''}" ${attr} style="--k:${RC[sk.rarity]}"><div class="pic">${pic}</div><div class="n">${sk.name}</div><div class="v">${coin(12)}${fmt(sk.value)}</div></div>`;
 }
 const poolOf=c=>SKINS.filter(s=>!c.weapons||c.weapons.includes(s.weapon));
@@ -207,21 +244,23 @@ function roll(c){
 }
 
 /* ---- эффект выигрыша ---- */
+let fxT=0;
 function confetti(col){
   if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  const c=$('fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
-  const P=Array.from({length:140},()=>({x:innerWidth/2,y:innerHeight*.5,vx:rnd(-8,8),vy:rnd(-15,-3),s:rnd(5,10),r:rnd(0,6),vr:rnd(-.3,.3),c:pick([col,col,'#f0be5c','#ece6d9'])}));
+  const id=++fxT,c=$('fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const P=Array.from({length:80},()=>({x:innerWidth/2,y:innerHeight*.5,vx:rnd(-8,8),vy:rnd(-15,-3),s:rnd(5,10),r:rnd(0,6),vr:rnd(-.3,.3),c:pick([col,col,'#f0be5c','#ece6d9'])}));
   let f=0;(function t(){
+    if(id!==fxT){x.clearRect(0,0,c.width,c.height);return}
     x.clearRect(0,0,c.width,c.height);
     P.forEach(p=>{p.vy+=.28;p.vx*=.995;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()});
-    if(++f<170)requestAnimationFrame(t);else x.clearRect(0,0,c.width,c.height);
+    if(++f<130)requestAnimationFrame(t);else x.clearRect(0,0,c.width,c.height);
   })();
 }
-const closeRv=()=>$('rv').classList.remove('on');
+const closeRv=()=>{$('rv').classList.remove('on');document.body.classList.remove('rvo');fxT++};
 function reveal(title,sk,itemId){
   $('rv').style.setProperty('--k',RC[sk.rarity]);$('rv').classList.toggle('leg',sk.rarity==='l');
   $('rvT').textContent=title;
-  const ic=sk.ico||'🔫';
+  const ic='';
   $('rvPic').innerHTML=sk.img?`<img src="${sk.img}" alt="" onerror="this.outerHTML='<div class=ph>${ic}</div>'">`:`<div class="ph">${ic}</div>`;
   $('rvN').textContent=sk.name;
   $('rvS').textContent=RN[sk.rarity]+(sk.collection?' · '+sk.collection:'');
@@ -232,32 +271,39 @@ function reveal(title,sk,itemId){
     if(it){S.bal+=sk.value;S.inv=S.inv.filter(i=>i!==it);renderAll();if(cur)updOpen()}
     closeRv();
   };
-  const el=$('rv');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');
-  confetti(RC[sk.rarity]);
+  const el=$('rv');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');document.body.classList.add('rvo');
+  setTimeout(()=>{if(el.classList.contains('on'))confetti(RC[sk.rarity])},420);
 }
 $('rvOk').onclick=closeRv;
+$('twk').innerHTML=Array.from({length:12},(_,i)=>`<span class="tw" style="left:${rnd(8,92).toFixed(0)}%;top:${rnd(8,88).toFixed(0)}%;animation-delay:${(i*.2).toFixed(1)}s"></span>`).join('');
 
 /* ---- общее ---- */
 function renderAll(){
   $('bal').textContent=fmt(S.bal);save();
   $('invEmpty').hidden=S.inv.length>0;$('sellAll').disabled=!S.inv.length;
+  $('invHint').innerHTML='Нажмите на скин, чтобы продать его'+(S.inv.length?' · всего '+coin(12)+fmt(S.inv.reduce((a,i)=>a+skin(i.sid).value,0)):'');
   $('invGrid').innerHTML=S.inv.map(i=>card(skin(i.sid),'pick',`data-i="${i.id}"`)).join('');
   $('invGrid').querySelectorAll('.item').forEach(el=>el.onclick=()=>{
-    const it=S.inv.find(i=>i.id==el.dataset.i);if(!it)return;
+    if(spinning||busy)return;const it=S.inv.find(i=>i.id==el.dataset.i);if(!it)return;
     S.bal+=skin(it.sid).value;S.inv=S.inv.filter(i=>i!==it);renderAll();
   });
   renderUp();
 }
-$('sellAll').onclick=()=>{S.bal+=S.inv.reduce((a,i)=>a+skin(i.sid).value,0);S.inv=[];renderAll()};
+$('sellAll').onclick=()=>{if(spinning||busy)return;S.bal+=S.inv.reduce((a,i)=>a+skin(i.sid).value,0);S.inv=[];renderAll()};
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  if(spinning||busy)return;
   document.querySelectorAll('nav button,.tab').forEach(e=>e.classList.remove('on'));
   b.classList.add('on');$(b.dataset.t).classList.add('on');
 });
-$('bonus').onclick=()=>{if(S.bonusAt+3e5>Date.now())return;S.bal+=100;S.bonusAt=Date.now();renderAll()};
+$('bonus').onclick=()=>{if(spinning||busy||S.bonusAt+3e5>Date.now())return;S.bal+=100;S.bonusAt=Date.now();renderAll()};
 setInterval(()=>{const l=S.bonusAt+3e5-Date.now();$('bonus').textContent=l>0?'Бонус через '+Math.ceil(l/1000)+' с':'Бонус +100'},1000);
 
 /* ---- кейсы ---- */
-$('caseGrid').innerHTML=CASES.map(c=>`<div class="card case" data-id="${c.id}" style="--k:${c.k}"><div class="ico">${c.ico}</div><div class="nm">${c.name}</div><div class="price">${coin(14)}${fmt(c.price)}</div></div>`).join('');
+$('caseGrid').innerHTML=CASES.map(c=>{
+  const top=poolOf(c).filter(s=>c.rar[s.rarity]&&s.img).sort((a,b)=>b.value-a.value).slice(0,3);
+  const art=top.map((s,i)=>`<img class="p p${i}" src="${s.img}" alt="" decoding="async" onerror="this.style.display='none'">`).join('');
+  return `<div class="card case" data-id="${c.id}" style="--k:${c.k}"><div class="art">${art}</div><div class="nm">${c.name}</div><div class="price">${coin(14)}${fmt(c.price)}</div></div>`;
+}).join('');
 document.querySelectorAll('.case').forEach(el=>el.onclick=()=>openModal(CASES.find(c=>c.id===el.dataset.id)));
 let cur=null,busy=false;
 const updOpen=()=>{$('openBtn').disabled=busy||S.bal<cur.price};
@@ -272,15 +318,12 @@ $('mClose').onclick=()=>{if(!busy)$('modal').classList.remove('on')};
 $('openBtn').onclick=()=>{
   if(busy||S.bal<cur.price)return;busy=true;S.bal-=cur.price;$('bal').textContent=fmt(S.bal);updOpen();$('mMsg').textContent='';
   const W=40,items=Array.from({length:50},()=>roll(cur)),win=roll(cur);items[W]=win;
+  const id=S.id++;S.inv.push({id,sid:win.id});save();
   const st=$('strip');st.style.transition='none';st.style.transform='translateX(0)';
   st.innerHTML=items.map(s=>card(s)).join('');void st.offsetWidth;
   const x=W*108+54+rnd(-40,40)-st.parentElement.clientWidth/2;
   st.style.transition='transform 6s cubic-bezier(.1,.6,.1,1)';st.style.transform=`translateX(${-x}px)`;
-  setTimeout(()=>{
-    const id=S.id++;S.inv.push({id,sid:win.id});busy=false;
-    renderAll();updOpen();
-    setTimeout(()=>reveal('Вам выпало',win,id),450);
-  },6100);
+  onEnd(st,6000,()=>{busy=false;reveal('Вам выпало',win,id);renderAll();updOpen()});
 };
 
 /* ---- апгрейд ---- */
@@ -326,20 +369,17 @@ $('upBtn').onclick=()=>{
   if(spinning||!tgt)return;
   const sum=sumSel(),ch=chanceOf(sum,tgt),res=Math.random()*100,win=res<ch,t=tgt,ww=$('ww');
   S.inv=S.inv.filter(i=>!sel.has(i.id));sel.clear();tgt=null;spinning=true;
+  let wid=0;if(win){wid=S.id++;S.inv.push({id:wid,sid:t.id})}
+  save();
   $('upBtn').disabled=true;$('upMsg').textContent='';$('upMsg').className='msg';ww.className='wheelwrap';
   rot=rot-(rot%360)+360*6+((-res*3.6)%360+360)%360;
   $('wheel').style.transform=`rotate(${rot}deg)`;
-  setTimeout(()=>{
+  onEnd($('wheel'),5000,()=>{
     spinning=false;
-    if(win){
-      const id=S.id++;S.inv.push({id,sid:t.id});ww.classList.add('win');
-      $('upMsg').className='msg w';$('upMsg').textContent='Успех!';
-      renderAll();setTimeout(()=>reveal('Апгрейд удался',t,id),600);
-    }else{
-      ww.classList.add('lose');$('upMsg').className='msg l';$('upMsg').textContent='Не повезло — скины потеряны';
-      renderAll();
-    }
-  },5100);
+    if(win){ww.classList.add('win');$('upMsg').className='msg w';$('upMsg').textContent='Успех!';reveal('Апгрейд удался',t,wid)}
+    else{ww.classList.add('lose');$('upMsg').className='msg l';$('upMsg').textContent='Не повезло — скины потеряны'}
+    renderAll();
+  });
 };
 
 renderAll();
