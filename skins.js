@@ -42,6 +42,14 @@ const CASES=[
   cw:{shepot:4,groza:3,unstoppable:3,spector:3,kraken:2,digital:2,flame:1.5,rainbow:1.5,strike:1.5,ice:1,memento:.8}},
  {id:'premium',name:'Premium',price:550,ico:'💎',k:'#a56bd0',weapons:['Багги','Каменоломня','Коптер','Турель'],rar:{l:1},
   cw:{buggy:40,turret:30,copter:20,quarry:10}},
- {id:'armor',name:'Броня',price:1200,ico:'🛡️',k:'#7cc4e8',weapons:['Броня'],rar:{l:1},
-  cw:{ice_boots:4,ice_pants:3,ice_helmet:2,ice_body:1}}
+ {id:'armor',name:'Броня',price:1380,ico:'🛡️',k:'#7cc4e8',weapons:['Броня'],rar:{l:1},
+  cw:{ice_boots:4,ice_pants:3,ice_helmet:2,ice_body:1}},
+
+ // --- Кейсы по редкости. Пока в них нет скинов, на сайте они показаны как «Скоро».
+ // Когда добавите скины нужной редкости (rarity:'e' / 'r' / 'u' / 'c'), кейс заработает сам.
+ // Цены ниже временные, подгоним, когда будут скины.
+ {id:'epic',name:'Эпический кейс',price:250,k:'#b36ae0',rar:{e:1}},
+ {id:'rare',name:'Редкий кейс',price:120,k:'#5b8fd6',rar:{r:1}},
+ {id:'uncommon',name:'Необычный кейс',price:50,k:'#5fa8a0',rar:{u:1}},
+ {id:'common',name:'Обычный кейс',price:20,k:'#8d9aa0',rar:{c:1}}
 ];
