@@ -14,6 +14,10 @@ const SKINS=[
  {id:'unstoppable',weapon:'Штурмовая винтовка',name:'Неудержимый',rarity:'l',collection:'State of Riot',img:'unstoppable.webp',value:600},
  {id:'flame',weapon:'Штурмовая винтовка',name:'Пламенный воин',rarity:'l',collection:'Path of the Sword',img:'flame.webp',value:750},
  {id:'ice',weapon:'Штурмовая винтовка',name:'Ледяной раскол',rarity:'l',collection:'Frozen Fury',img:'ice.webp',value:800},
+ {id:'memento',weapon:'Штурмовая винтовка',name:'Memento Mori',rarity:'l',collection:'',img:'ak_scythe.webp',value:900},
+ {id:'spector',weapon:'Штурмовая винтовка',name:'Спектор',rarity:'l',collection:'',img:'ak_black.webp',value:650},
+ {id:'rainbow',weapon:'Штурмовая винтовка',name:'Радужная ярость',rarity:'l',collection:'',img:'ak_violet.webp',value:760},
+ {id:'strike',weapon:'Штурмовая винтовка',name:'Ударная линия',rarity:'l',collection:'',img:'ak_tech.webp',value:720},
 
  // --- Premium ---
  {id:'buggy',weapon:'Багги',name:'Багги',rarity:'l',collection:'',img:'buggy.webp',ico:'🏎️',value:280},
@@ -27,8 +31,8 @@ const SKINS=[
    cw  — относительный вес конкретного скина внутри кейса (по умолчанию 1):
          чем больше число, тем чаще выпадает. Шансы в процентах видны в окне кейса. */
 const CASES=[
- {id:'ak',name:'AK-47',price:680,ico:'🔫',k:'#e0a53a',weapons:['Штурмовая винтовка'],rar:{l:1},
-  cw:{shepot:4,groza:3,unstoppable:3,kraken:2,digital:2,flame:1.5,ice:1}},
+ {id:'ak',name:'AK-47',price:710,ico:'🔫',k:'#e0a53a',weapons:['Штурмовая винтовка'],rar:{l:1},
+  cw:{shepot:4,groza:3,unstoppable:3,spector:3,kraken:2,digital:2,flame:1.5,rainbow:1.5,strike:1.5,ice:1,memento:.8}},
  {id:'premium',name:'Premium',price:550,ico:'💎',k:'#a56bd0',weapons:['Багги','Каменоломня','Коптер','Турель'],rar:{l:1},
   cw:{buggy:40,turret:30,copter:20,quarry:10}}
 ];
